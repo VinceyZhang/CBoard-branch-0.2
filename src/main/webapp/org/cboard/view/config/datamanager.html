@@ -1,0 +1,75 @@
+<!-- Content Wrapper. Contains page content -->
+
+<script language="JavaScript" src="/plugins/jQuery/jquery-2.2.3.min.js">
+</script>
+<script language="JavaScript" src="/plugins/datatables/jquery.dataTables.js"></script>
+<script>
+    $(function () {
+        /*$.ajax({
+            url: "/datamanager/getTablesBySource.do",
+            data: {datasourceId: 1},
+            success: function () {
+                alert();
+            }
+        })*/
+
+        $.ajax({
+            url: "/datamanager/getDataByTable.do",
+            data: {datasourceId: 1, table: "job"},
+            success: function () {
+                alert();
+            }
+        })
+    })
+</script>
+<div id="inner-container">
+    <div class="row">
+        <table>
+            <!-- On rows -->
+            <tr class="active">
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+            <tr class="success">
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+            <tr class="warning">
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+            <tr class="danger">
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+            <tr class="info">
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+            <tr>
+                <td class="active">...</td>
+                <td class="success">...</td>
+                <td class="warning">...</td>
+                <td class="danger">...</td>
+                <td class="info">...</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</div>
