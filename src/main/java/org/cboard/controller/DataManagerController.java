@@ -38,26 +38,30 @@ public class DataManagerController {
     private DatasourceService datasourceService;
 
     /**
-     *  获取所有表名
+     * 获取所有表名
+     *
      * @param datasourceId
      * @return
      */
     @RequestMapping(value = "/getTablesBySource")
-    public DataProviderResult getTablesBySource(@RequestParam(name = "datasourceId", required = false) Long datasourceId ) {
+    public DataProviderResult getTablesBySource(@RequestParam(name = "datasourceId", required = false) Long datasourceId) {
 
         return dataManagerService.getTablesBySource(datasourceId);
     }
 
     /**
      * 根据表名查询数据
+     *
      * @param datasourceId
      * @param table
      * @return
      */
     @RequestMapping(value = "/getDataByTable")
-    public DataProviderResult getDatasByTable(@RequestParam(name = "datasourceId", required = false) Long datasourceId, @RequestParam(name = "table", required = false) String table) {
-        Map<String, String> strParams = new HashMap<String,String>();
+    public DataProviderResult getDatasByTable(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
+                                              @RequestParam(name = "table", required = false) String table,
+                                              @RequestParam(name = "params", required = false) Object params) {
+        Map<String, String> strParams = new HashMap<String, String>();
 
-        return dataManagerService.getDatasBySourceAndTable(datasourceId, table);
+        return dataManagerService.getDatasBySourceAndTable(datasourceId, table,params);
     }
 }

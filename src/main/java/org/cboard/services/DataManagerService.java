@@ -44,7 +44,7 @@ public class DataManagerService extends DataProviderService {
     }
 
 
-    public DataProviderResult getData(DashboardDatasource datasource ,Map<String, String> query, Long datasetId) {
+    public DataProviderResult getData(DashboardDatasource datasource, Map<String, String> query, Long datasetId) {
         String[][] dataArray = null;
         int resultCount = 0;
         String msg = "1";
@@ -67,13 +67,22 @@ public class DataManagerService extends DataProviderService {
         return new DataProviderResult(dataArray, msg);
     }
 
-    public DataProviderResult getDatasBySourceAndTable(Long datasourceId, String table) {
+    public DataProviderResult getDatasBySourceAndTable(Long datasourceId, String table, Object params) {
         //查找该数据源的连接信息
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
         Map<String, String> query = new HashMap<String, String>();
         JSONObject jsonObject = JSONObject.parseObject(datasource.getConfig());
         String jdbcurl = jsonObject.get("jdbcurl").toString();
         String dbName = jdbcurl.substring(jdbcurl.lastIndexOf("/") + 1, jdbcurl.length());
+        StringBuffer sbSql=new StringBuffer();
+        if (params != null) {
+
+            Map<String,String> mapParam=(Map<String,String> )params;
+            for (String key:mapParam.keySet()) {
+                mapParam.get(key);
+                //sbSql.append("where")
+            }
+        }
         query.put("sql", "select * from " + table);
         DataProviderResult result = getData(datasource, query, null);
         return result;
