@@ -12,9 +12,7 @@ import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +35,18 @@ public class DataManagerController {
     @Autowired
     private DatasourceService datasourceService;
 
+
+    /**
+     * 获取所有数据源名
+     *
+     * @param datasourceId
+     * @return
+     */
+    @RequestMapping(value = "/getDataSources")
+    public DataResult getDataSource(@RequestParam(name = "datasourceId", required = false) Long datasourceId) {
+        return dataManagerService.getDataSources(datasourceId);
+    }
+
     /**
      * 获取所有表名
      *
@@ -45,23 +55,39 @@ public class DataManagerController {
      */
     @RequestMapping(value = "/getTablesBySource")
     public DataProviderResult getTablesBySource(@RequestParam(name = "datasourceId", required = false) Long datasourceId) {
-
         return dataManagerService.getTablesBySource(datasourceId);
     }
 
     /**
      * 根据表名查询数据
      *
+     * @param data
+     * @return
+     */
+    @RequestMapping(value = "/getDataByTable")
+    @ResponseBody
+    public DataProviderResult getDatasByTable(@RequestBody Object data) {
+
+        Map<String, Object> jsonObject = (Map<String, Object>) (data);
+        Long datasourceId = Long.parseLong(jsonObject.get("datasourceId").toString());
+        String table = jsonObject.get("table").toString();
+        Map<String, String> params = (Map<String, String>) jsonObject.get("params");
+        return dataManagerService.getDatasBySourceAndTable(datasourceId, table, params);
+    }
+
+    /**
+     * 根据表名查询列名
+     *
      * @param datasourceId
      * @param table
      * @return
      */
-    @RequestMapping(value = "/getDataByTable")
-    public DataProviderResult getDatasByTable(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
-                                              @RequestParam(name = "table", required = false) String table,
-                                              @RequestParam(name = "params", required = false) Object params) {
+    @RequestMapping(value = "/getColumnsByTable")
+    public DataProviderResult getColumnsByTable(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
+                                                @RequestParam(name = "table", required = false) String table,
+                                                @RequestParam(name = "params", required = false) Object params) {
         Map<String, String> strParams = new HashMap<String, String>();
 
-        return dataManagerService.getDatasBySourceAndTable(datasourceId, table,params);
+        return dataManagerService.getColumnsBySourceAndTable(datasourceId, table, params);
     }
 }

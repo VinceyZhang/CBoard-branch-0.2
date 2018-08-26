@@ -1,30 +1,112 @@
 <!-- Content Wrapper. Contains page content -->
 
-<script language="JavaScript" src="/plugins/jQuery/jquery-2.2.3.min.js">
-</script>
-<script language="JavaScript" src="/plugins/datatables/jquery.dataTables.js"></script>
-<script>
-    $(function () {
-        /*$.ajax({
-            url: "/datamanager/getTablesBySource.do",
-            data: {datasourceId: 1},
-            success: function () {
-                alert();
-            }
-        })*/
 
+<script>
+    function getTablesBySource(obj) {
+
+        var id = $(obj).find("option:selected").val();
         $.ajax({
-            url: "/datamanager/getDataByTable.do",
-            data: {datasourceId: 1, table: "job"},
-            success: function () {
-                alert();
+            url: "/datamanager/getTablesBySource.do",
+            data: {datasourceId: id},
+            success: function (data) {
+                if (data) {
+
+                    var tables = data.data;
+                    if (tables != null) {
+                        for (var i = 1; i < tables.length; i++) {
+                            $("#tables").append("<option value='" + tables[i] + "' >"
+                                + tables[i] + "</option>");
+                        }
+                    } else {
+                        $("#tables").find("option").remove();
+                    }
+                }
             }
         })
+    }
+
+    function getDataByTable(obj) {
+        var data = {
+            "datasourceId": $("#datasources").val(),
+            "table": $(obj).val(),
+            "params": {"name": "GMS金融市场业务管理系统-接口", "admin": "魏强"}
+        };
+
+        $.ajax({
+                contentType: "application/json",
+                url: "/datamanager/getDataByTable.do",
+                type: "post",
+                data: JSON.stringify(data),
+                success: function (data) {
+                    var datas = data.data;
+                    if (datas != null) {
+                        //生成抬头
+                        var columns = datas[0];
+                        for (var i in columns) {
+                            $("#columns").append("<th>" + columns[i] + "</th>");
+                        }
+
+                        for (var i in columns) {
+                            $("#dataList").append("<tr class='active'>");
+
+                            for (var j in columns[i]) {
+                                $("#dataList").append("<td class='info'>" + columns[i][j] + "</td>");
+                            }
+                            $("#dataList").append("</tr>");
+                        }
+
+
+                    }
+                }
+
+            }
+        )
+    }
+    ;
+
+    $(function () {
+
+        /**
+         * 获取各种数据源
+         * */
+        $.ajax({
+            url: "/datamanager/getDataSources.do",
+
+            success: function (data) {
+                debugger;
+                if (data) {
+                    var sources = data.data;
+                    for (var i in sources) {
+                        $("#datasources").append("<option value='" + sources[i].id + "' >"
+                            + sources[i].name + "</option>");
+                    }
+                }
+            }
+        })
+
+
+//        $.ajax({
+//            url: "/datamanager/getColumnsByTable.do",
+//            data: {datasourceId: 3, table: "dashboard_board"},
+//            success: function () {
+//                alert();
+//            }
+//        })
+
     })
 </script>
 <div id="inner-container">
     <div class="row">
-        <table>
+        <select class="form-control" id="datasources" onchange="getTablesBySource(this)"></select>
+    </div>
+    <div class="row">
+        <select class="form-control" id="tables" onchange="getDataByTable(this)"></select>
+    </div>
+    <div class="row">
+        <table class="table table-striped table-bordered table-hover" id="dataList">
+            <tr class="" id="columns">
+
+            </tr>
             <!-- On rows -->
             <tr class="active">
                 <td class="active">...</td>
@@ -33,41 +115,7 @@
                 <td class="danger">...</td>
                 <td class="info">...</td>
             </tr>
-            <tr class="success">
-                <td class="active">...</td>
-                <td class="success">...</td>
-                <td class="warning">...</td>
-                <td class="danger">...</td>
-                <td class="info">...</td>
-            </tr>
-            <tr class="warning">
-                <td class="active">...</td>
-                <td class="success">...</td>
-                <td class="warning">...</td>
-                <td class="danger">...</td>
-                <td class="info">...</td>
-            </tr>
-            <tr class="danger">
-                <td class="active">...</td>
-                <td class="success">...</td>
-                <td class="warning">...</td>
-                <td class="danger">...</td>
-                <td class="info">...</td>
-            </tr>
-            <tr class="info">
-                <td class="active">...</td>
-                <td class="success">...</td>
-                <td class="warning">...</td>
-                <td class="danger">...</td>
-                <td class="info">...</td>
-            </tr>
-            <tr>
-                <td class="active">...</td>
-                <td class="success">...</td>
-                <td class="warning">...</td>
-                <td class="danger">...</td>
-                <td class="info">...</td>
-            </tr>
+
         </table>
     </div>
 </div>

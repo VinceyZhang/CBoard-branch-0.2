@@ -27,4 +27,6 @@ public interface DatasourceDao {
     int delete(Long id, String userId);
 
     long checkDatasourceRole(String userId, Long datasourceId);
+
+    List<DashboardDatasource> getDatasources();
 }
