@@ -371,7 +371,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
         jstree_ReloadTree(treeID, originalData);
     };
-    
+
     $scope.treeEventsObj = function () {
         var baseEventObj = jstree_baseTreeEventsObj({
             ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,

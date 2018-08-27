@@ -25,6 +25,10 @@
         ORDER BY source_name
     </select>
 
+    <select id="getDatasources" resultType="org.cboard.pojo.DashboardDatasource">
+        SELECT datasource_id id,user_id userId,source_name name,source_type type ,config FROM dashboard_datasource
+    </select>
+
     <select id="getDatasource" resultType="org.cboard.pojo.DashboardDatasource">
         SELECT datasource_id id,user_id userId,source_name name,source_type type ,config FROM dashboard_datasource WHERE datasource_id = #{0}
     </select>
