@@ -5,21 +5,44 @@ import java.io.Serializable;
 /**
  * Created by yfyuan on 2016/8/26.
  */
-public class DataResult implements Serializable{
+public class DataResult implements Serializable {
 
     private Object data;
     private String msg;
-    private int resultCount = 0;
+    private Integer resultCount = 0;
     private Integer curPage;
     private Integer pageSize;
     private Integer totalPage;
+    private String sql;
+    private Long datasourceId;
 
     public DataResult() {
     }
 
     public DataResult(String[][] dataArray, String msg) {
-        this.data=dataArray;
-        this.msg=msg;
+        this.data = dataArray;
+        this.msg = msg;
+    }
+
+
+    public void setResultCount(Integer resultCount) {
+        this.resultCount = resultCount;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public Long getDatasourceId() {
+        return datasourceId;
+    }
+
+    public void setDatasourceId(Long datasourceId) {
+        this.datasourceId = datasourceId;
     }
 
     public Integer getTotalPage() {
@@ -46,13 +69,10 @@ public class DataResult implements Serializable{
         this.msg = msg;
     }
 
-    public int getResultCount() {
+    public Integer getResultCount() {
         return resultCount;
     }
 
-    public void setResultCount(int resultCount) {
-        this.resultCount = resultCount;
-    }
 
     public Integer getCurPage() {
         return curPage;

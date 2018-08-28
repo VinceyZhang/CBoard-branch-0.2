@@ -32,10 +32,14 @@ public class DataManagerController {
     private DataManagerService dataManagerService;
 
     @Autowired
-    private CachedDataProviderService cachedDataProviderService;
+    private AuthenticationService authenticationService;
 
-    @Autowired
-    private DatasourceService datasourceService;
+    @RequestMapping(value = "/saveDataManger")
+    public ServiceStatus saveDataManger(@RequestParam(name = "datasourceId", required = false) String json) {
+        String userid = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.saveDataManger(userid,json);
+    }
+
 
 
     /**

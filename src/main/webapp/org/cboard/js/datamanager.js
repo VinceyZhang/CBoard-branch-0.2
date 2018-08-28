@@ -1,4 +1,12 @@
 /**
+ * 保存结果集
+ * @param obj
+ */
+function saveDatamanager(obj){
+
+}
+
+/**
  * 查询
  */
 function searchByConditions() {
@@ -140,6 +148,9 @@ function getDataByTable(data) {
                     for (var i = 1; i < 10; i++) {
                         $(".pagination").append("<li><a href='javascript:void(0);' onclick='javascript:getDataFromA(this)'>" + i + "</a></li>");
                     }
+
+                    $("#datasourceId").val();
+                    $("#sql").val();
                 }
             }
 
