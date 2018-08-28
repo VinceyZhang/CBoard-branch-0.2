@@ -10,10 +10,25 @@ public class DataResult implements Serializable{
     private Object data;
     private String msg;
     private int resultCount = 0;
+    private Integer curPage;
+    private Integer pageSize;
+    private Integer totalPage;
+
     public DataResult() {
     }
 
+    public DataResult(String[][] dataArray, String msg) {
+        this.data=dataArray;
+        this.msg=msg;
+    }
 
+    public Integer getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(Integer totalPage) {
+        this.totalPage = totalPage;
+    }
 
     public Object getData() {
         return data;
@@ -37,5 +52,21 @@ public class DataResult implements Serializable{
 
     public void setResultCount(int resultCount) {
         this.resultCount = resultCount;
+    }
+
+    public Integer getCurPage() {
+        return curPage;
+    }
+
+    public void setCurPage(Integer curPage) {
+        this.curPage = curPage;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }

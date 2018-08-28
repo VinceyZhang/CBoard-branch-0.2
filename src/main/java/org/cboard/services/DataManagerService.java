@@ -3,13 +3,13 @@ package org.cboard.services;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
-import org.cboard.dao.DataManagerDao;
 import org.cboard.dao.DatasourceDao;
 import org.cboard.dataprovider.DataProvider;
 import org.cboard.dataprovider.DataProviderManager;
 import org.cboard.dto.DataProviderResult;
 import org.cboard.dto.DataResult;
 import org.cboard.pojo.DashboardDatasource;
+import org.cboard.util.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -30,14 +30,16 @@ public class DataManagerService extends DataProviderService {
         //通过连接信息去查询该库下所有表
         Map<String, String> query = new HashMap<String, String>();
 
-        query.put("sql", "select table_name from information_schema.tables where table_schema='" + datasource.getName()
-                + "' and table_type='base table';");
+        JSONObject jsonObject = JSONObject.parseObject(datasource.getConfig());
+        String jdbcurl = jsonObject.get("jdbcurl").toString();
+        String dbName = jdbcurl.substring(jdbcurl.lastIndexOf("/") + 1, jdbcurl.length());
+        query.put("sql", "select table_name from information_schema.tables where table_schema='" + dbName + "' and table_type='base table';");
         DataProviderResult result = getData(datasourceId, query, null);
         return result;
     }
 
 
-    public DataProviderResult getData(DashboardDatasource datasource, Map<String, String> query, Long datasetId) {
+    public DataResult getData(DashboardDatasource datasource, Map<String, String> query, Long datasetId) {
         String[][] dataArray = null;
         int resultCount = 0;
         String msg = "1";
@@ -57,41 +59,63 @@ public class DataManagerService extends DataProviderService {
         } catch (Exception e) {
             msg = e.getMessage();
         }
-        return new DataProviderResult(dataArray, msg);
+        return new DataResult(dataArray, msg);
     }
 
-    public DataProviderResult getDatasBySourceAndTable(Long datasourceId, String table, Object params) {
+    public DataResult getDatasBySourceAndTable(Long datasourceId, String table, PageHelper pageHelper, Object params) {
         //查找该数据源的连接信息
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
         Map<String, String> query = new HashMap<String, String>();
+        JSONObject jsonObject = JSONObject.parseObject(datasource.getConfig());
+        String jdbcurl = jsonObject.get("jdbcurl").toString();
+        String dbName = jdbcurl.substring(jdbcurl.lastIndexOf("/") + 1, jdbcurl.length());
         StringBuffer sbSql = new StringBuffer("select * from " + table);
+
+
         if (params != null) {
 
             Map<String, String> mapParam = (Map<String, String>) params;
             sbSql.append(" where ");
+            int i = 0;
             for (String key : mapParam.keySet()) {
+                i++;
                 mapParam.get(key);
                 sbSql.append(key + " ='" + mapParam.get(key) + "' ");
-                sbSql.append(" and ");
+                if (i < mapParam.size()) {
+                    sbSql.append(" and ");
+                }
+
             }
         }
-        sbSql.append(" 1=1 ");
+
+
+        int curPage = pageHelper.getCurPage() == null ? 1 : pageHelper.getCurPage();
+        int pageSize = pageHelper.getPageSize() == null ? 10 : pageHelper.getPageSize();
+        pageHelper.setCurPage(curPage);
+        pageHelper.setPageSize(pageSize);
+        StringBuffer countSql = new StringBuffer("select count(*) from " + table);
+        query.put("sql", countSql.toString());
+        DataResult countResult = getData(datasource, query, null);
+        String[][] strArr = (String[][]) countResult.getData();
+        pageHelper.setTotalCount(Integer.parseInt(strArr[1][0]));
+        sbSql.append(" limit " + pageHelper.getPageSize() * (pageHelper.getCurPage() - 1) + "," + pageHelper.getPageSize());
         query.put("sql", sbSql.toString());
-        DataProviderResult result = getData(datasource, query, null);
+        DataResult result = getData(datasource, query, null);
+        result.setTotalPage(pageHelper.getTotalPage());
         return result;
     }
 
-    public DataProviderResult getColumnsBySourceAndTable(Long datasourceId, String table, Object params) {
+    public DataResult getColumnsBySourceAndTable(Long datasourceId, String table) {
         //查找该数据源的连接信息
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
         Map<String, String> query = new HashMap<String, String>();
         query.put("sql", "select column_name from information_schema.columns  where table_name='" + table + "'");
-        DataProviderResult result = getData(datasource, query, null);
+        DataResult result = getData(datasource, query, null);
         return result;
     }
 
     public DataResult getDataSources(Long datasourceId) {
-        DataResult result=new DataResult();
+        DataResult result = new DataResult();
         if (datasourceId != null) {
             DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
             result.setMsg("Get  datasource by id");

@@ -11,6 +11,7 @@ import org.cboard.dataprovider.DataProviderViewManager;
 import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
+import org.cboard.util.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class DataManagerController {
 
     @Autowired
     private DataManagerService dataManagerService;
+
     @Autowired
     private CachedDataProviderService cachedDataProviderService;
 
@@ -66,28 +68,32 @@ public class DataManagerController {
      */
     @RequestMapping(value = "/getDataByTable")
     @ResponseBody
-    public DataProviderResult getDatasByTable(@RequestBody Object data) {
+    public DataResult getDatasByTable(@RequestBody Object data) {
 
-        Map<String, Object> jsonObject = (Map<String, Object>) (data);
-        Long datasourceId = Long.parseLong(jsonObject.get("datasourceId").toString());
-        String table = jsonObject.get("table").toString();
-        Map<String, String> params = (Map<String, String>) jsonObject.get("params");
-        return dataManagerService.getDatasBySourceAndTable(datasourceId, table, params);
+        Map<String, Object> objectMap = (Map<String, Object>) (data);
+        Long datasourceId = Long.parseLong(objectMap.get("datasourceId").toString());
+        String table = objectMap.get("table").toString();
+        Integer pageSize = Integer.parseInt(objectMap.get("pageSize").toString());
+        Integer curPage = Integer.parseInt(objectMap.get("curPage").toString());
+        PageHelper pageHelper = new PageHelper(pageSize, curPage);
+        Map<String, String> params = (Map<String, String>) objectMap.get("params");
+
+        return dataManagerService.getDatasBySourceAndTable(datasourceId, table, pageHelper, params);
     }
 
     /**
      * 根据表名查询列名
      *
-     * @param datasourceId
-     * @param table
+     * @param data
      * @return
      */
     @RequestMapping(value = "/getColumnsByTable")
-    public DataProviderResult getColumnsByTable(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
-                                                @RequestParam(name = "table", required = false) String table,
-                                                @RequestParam(name = "params", required = false) Object params) {
-        Map<String, String> strParams = new HashMap<String, String>();
+    @ResponseBody
+    public DataResult getColumnsByTable(@RequestBody Object data) {
 
-        return dataManagerService.getColumnsBySourceAndTable(datasourceId, table, params);
+        Map<String, Object> objectMap = (Map<String, Object>) (data);
+        Long datasourceId = Long.parseLong(objectMap.get("datasourceId").toString());
+        String table = objectMap.get("table").toString();
+        return dataManagerService.getColumnsBySourceAndTable(datasourceId, table);
     }
 }
