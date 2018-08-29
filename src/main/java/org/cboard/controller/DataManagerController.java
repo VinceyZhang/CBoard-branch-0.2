@@ -24,7 +24,7 @@ import java.util.Set;
  * Created by yfyuan on 2016/8/9.
  */
 @RestController
-@RequestMapping("/datamanager")
+@RequestMapping("/dataManager")
 public class DataManagerController {
 
 
@@ -34,11 +34,43 @@ public class DataManagerController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @RequestMapping(value = "/saveDataManger")
-    public ServiceStatus saveDataManger(@RequestParam(name = "datasourceId", required = false) String json) {
+
+    @RequestMapping(value = "/getDataManagerList")
+    public List<ViewDashboardDataManager> getDataManagerList() {
+
         String userid = authenticationService.getCurrentUser().getUserId();
-        return dataManagerService.saveDataManger(userid,json);
+        List<DashboardDataManager> list = dataManagerService.getDataManagerList(userid);
+        return Lists.transform(list, ViewDashboardDataManager.TO);
     }
+
+
+    @RequestMapping(value = "/saveNewDataManager")
+    public ServiceStatus saveNewDataManager(@RequestParam(name = "json") String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.save(userid, json);
+    }
+
+    @RequestMapping(value = "/saveDataManager")
+    public ServiceStatus saveDataManger(@RequestParam(name = "json") String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.save(userid, json);
+    }
+
+
+    @RequestMapping(value = "/updateDataManager")
+    public ServiceStatus updateDataset(@RequestParam(name = "json") String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.update(userid, json);
+    }
+
+//    @RequestMapping(value = "/saveDataManger")
+//    public ServiceStatus saveDataManger(@RequestParam(name = "datasourceId", required = false) String json) {
+//        String userid = authenticationService.getCurrentUser().getUserId();
+//        return dataManagerService.saveDataManger(userid,json);
+//    }
 
 
 

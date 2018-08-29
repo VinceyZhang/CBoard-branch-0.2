@@ -5,14 +5,14 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     var translate = $filter('translate');
     $scope.optFlag = 'none';
-    $scope.curDataset = {data: {expressions: []}};
+    $scope.curDataManager = {data: {expressions: []}};
     $scope.curWidget = {};
     $scope.alerts = [];
     $scope.verify = {dsName: true};
 
-    var treeID = 'dataSetTreeID'; // Set to a same value with treeDom
+    var treeID = 'dataManagerTreeID'; // Set to a same value with treeDom
     var originalData = [];
-    var updateUrl = "dashboard/updateDataset.do";
+    var updateUrl = "dataManager/updateDataManager.do";
 
     $http.get("dashboard/getDatasourceList.do").success(function (response) {
         $scope.datasourceList = response;
@@ -33,9 +33,9 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     }
 
-    var getDatasetList = function () {
-        $http.get("dashboard/getDatasetList.do").success(function (response) {
-            $scope.datasetList = response;
+    var getDataManagerList = function () {
+        $http.get("dataManager/getDataManagerList.do").success(function (response) {
+            $scope.dataManagerList = response;
             $scope.searchNode();
         });
 
@@ -51,11 +51,11 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     };
 
     getCategoryList();
-    getDatasetList();
+    getDataManagerList();
 
     $scope.newDs = function () {
         $scope.optFlag = 'new';
-        $scope.curDataset = {data: {expressions: []}};
+        $scope.curDataManager = {data: {expressions: []}};
         $scope.curWidget = {};
         cleanPreview();
     };
@@ -72,15 +72,15 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     var doEditDs = function (ds) {
         $scope.optFlag = 'edit';
-        $scope.curDataset = angular.copy(ds);
-        $scope.curDataset.name = $scope.curDataset.categoryName + '/' + $scope.curDataset.name;
-        if (!$scope.curDataset.data.expressions) {
-            $scope.curDataset.data.expressions = [];
+        $scope.curDataManager = angular.copy(ds);
+        $scope.curDataManager.name = $scope.curDataManager.categoryName + '/' + $scope.curDataManager.name;
+        if (!$scope.curDataManager.data.expressions) {
+            $scope.curDataManager.data.expressions = [];
         }
         $scope.datasource = _.find($scope.datasourceList, function (ds) {
-            return ds.id == $scope.curDataset.data.datasource;
+            return ds.id == $scope.curDataManager.data.datasource;
         });
-        $scope.curWidget.query = $scope.curDataset.data.query;
+        $scope.curWidget.query = $scope.curDataManager.data.query;
         $scope.loadData();
     };
 
@@ -88,7 +88,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
         ModalUtils.confirm(translate("COMMON.CONFIRM_DELETE"), "modal-warning", "lg", function () {
             $http.post("dashboard/deleteDataset.do", {id: ds.id}).success(function () {
                 $scope.optFlag = 'none';
-                getDatasetList();
+                getDataManagerList();
             });
         });
     };
@@ -96,10 +96,10 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     $scope.copyDs = function (ds) {
         var data = angular.copy(ds);
         data.name = data.name + "_copy";
-        $http.post("dashboard/saveNewDataset.do", {json: angular.toJson(data)}).success(function (serviceStatus) {
+        $http.post("dataManager/saveNewDataManager.do", {json: angular.toJson(data)}).success(function (serviceStatus) {
             if (serviceStatus.status == '1') {
                 $scope.optFlag = 'none';
-                getDatasetList();
+                getDataManagerList();
                 ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
             } else {
                 ModalUtils.alert(serviceStatus.msg, "modal-warning", "lg");
@@ -109,7 +109,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     var validate = function () {
         $scope.alerts = [];
-        if (!$scope.curDataset.name) {
+        if (!$scope.curDataManager.name) {1
             $scope.alerts = [{msg: translate('CONFIG.DATASET.NAME') + translate('COMMON.NOT_EMPTY'), type: 'danger'}];
             $scope.verify = {dsName: false};
             $("#DatasetName").focus();
@@ -119,26 +119,26 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     };
 
     $scope.save = function () {
-        $scope.datasource ? $scope.curDataset.data.datasource = $scope.datasource.id : null;
-        $scope.curDataset.data.query = $scope.curWidget.query;
+        $scope.datasource ? $scope.curDataManager.data.datasource = $scope.datasource.id : null;
+        $scope.curDataManager.data.query = $scope.curWidget.query;
 
         if (!validate()) {
             return;
         }
-        var ds = angular.copy($scope.curDataset);
+        var ds = angular.copy($scope.curDataManager);
         var index = ds.name.lastIndexOf('/');
-        ds.categoryName = $scope.curDataset.name.substring(0, index).trim();
-        ds.name = $scope.curDataset.name.slice(index + 1).trim();
+        ds.categoryName = $scope.curDataManager.name.substring(0, index).trim();
+        ds.name = $scope.curDataManager.name.slice(index + 1).trim();
         if (ds.categoryName == '') {
             ds.categoryName = translate("COMMON.DEFAULT_CATEGORY");
         }
 
         if ($scope.optFlag == 'new') {
-            $http.post("dashboard/saveNewDataset.do", {json: angular.toJson(ds)}).success(function (serviceStatus) {
+            $http.post("dataManager/saveDataManager.do", {json: angular.toJson(ds)}).success(function (serviceStatus) {
                 if (serviceStatus.status == '1') {
                     $scope.optFlag = 'edit';
                     getCategoryList();
-                    getDatasetList();
+                    getDataManagerList();
                     $scope.verify = {dsName: true};
                     ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
                 } else {
@@ -150,7 +150,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
                 if (serviceStatus.status == '1') {
                     $scope.optFlag = 'edit';
                     getCategoryList();
-                    getDatasetList();
+                    getDataManagerList();
                     $scope.verify = {dsName: true};
                     ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
                 } else {
@@ -174,7 +174,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
         var data = {expression: ''};
         if (!col) {
             ok = function (exp, alias) {
-                $scope.curDataset.data.expressions.push({
+                $scope.curDataManager.data.expressions.push({
                     type: 'exp',
                     exp: data.expression,
                     alias: data.alias
@@ -279,7 +279,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
                 });
             });
 
-            //chartService.render($('#dataset_preview'), $scope.widgetData, widget, null, {myheight: 300});
+            chartService.render($('#dataset_preview'), $scope.widgetData, widget, null, {myheight: 300});
         });
     };
 
@@ -297,9 +297,9 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
         }
     });
 
-    var getSelectedDataSet = function () {
+    var getSelectedDataManager = function () {
         var selectedNode = jstree_GetSelectedNodes(treeID)[0];
-        return _.find($scope.datasetList, function (ds) {
+        return _.find($scope.dataManagerList, function (ds) {
             return ds.id == selectedNode.id;
         });
     };
@@ -310,9 +310,9 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     var switchNode = function (id) {
         $scope.ignoreChanges = false;
-        var dataSetTree = jstree_GetWholeTree(treeID);
-        dataSetTree.deselect_all();
-        dataSetTree.select_node(id);
+        var dataManagerTreeID = jstree_GetWholeTree(treeID);
+        dataManagerTreeID.deselect_all();
+        dataManagerTreeID.select_node(id);
     };
 
     $scope.applyModelChanges = function () {
@@ -321,22 +321,22 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     $scope.copyNode = function () {
         if (!checkTreeNode("copy")) return;
-        $scope.copyDs(getSelectedDataSet());
+        $scope.copyDs(getSelectedDataManager());
     };
 
     $scope.editNode = function () {
         if (!checkTreeNode("edit")) return;
-        $scope.editDs(getSelectedDataSet());
+        $scope.editDs(getSelectedDataManager());
     };
 
     $scope.deleteNode = function () {
         if (!checkTreeNode("delete")) return;
-        $scope.deleteDs(getSelectedDataSet());
+        $scope.deleteDs(getSelectedDataManager());
     };
     $scope.searchNode = function () {
         var para = {dsName: '', dsrName: ''};
-        //map datasetList to list (add datasourceName)
-        var list = $scope.datasetList.map(function (ds) {
+        //map dataManagerList to list (add datasourceName)
+        var list = $scope.dataManagerList.map(function (ds) {
             var dsr = _.find($scope.datasourceList, function (obj) {
                 return obj.id == ds.data.datasource
             });
@@ -375,7 +375,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     $scope.treeEventsObj = function () {
         var baseEventObj = jstree_baseTreeEventsObj({
             ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,
-            treeID: treeID, listName: "datasetList", updateUrl: updateUrl
+            treeID: treeID, listName: "dataManagerList", updateUrl: updateUrl
         });
         return baseEventObj;
     }();

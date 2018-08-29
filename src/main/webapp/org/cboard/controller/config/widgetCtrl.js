@@ -418,9 +418,10 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         $scope.preview();
     };
 
+    //新建图表配置界面
     $scope.newConfig = function () {
         $scope.curWidget.config = {};
-        $scope.curWidget.config.chart_type = 'line';
+        $scope.curWidget.config.chart_type = 'table';
         loadDsExpressions();
         cleanPreview();
         switch ($scope.curWidget.config.chart_type) {

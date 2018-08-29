@@ -2,7 +2,7 @@ package org.cboard.dto;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
-import org.cboard.pojo.DashboardDataset;
+import org.cboard.pojo.DashboardDataManager;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by yfyuan on 2016/10/11.
  */
-public class ViewDashboardDataset {
+public class ViewDashboardDataManager {
     private Long id;
     private String userId;
     private String name;
@@ -18,20 +18,20 @@ public class ViewDashboardDataset {
     private Map<String, Object> data;
 
 
-    public static final Function TO = new Function<DashboardDataset, ViewDashboardDataset>() {
+    public static final Function TO = new Function<DashboardDataManager, ViewDashboardDataManager>() {
         @Nullable
         @Override
-        public ViewDashboardDataset apply(@Nullable DashboardDataset input) {
-            return new ViewDashboardDataset(input);
+        public ViewDashboardDataManager apply(@Nullable DashboardDataManager input) {
+            return new ViewDashboardDataManager(input);
         }
     };
 
-    public ViewDashboardDataset(DashboardDataset dataManager) {
-        this.id = dataManager.getId();
-        this.userId = dataManager.getUserId();
-        this.name = dataManager.getName();
-        this.categoryName = dataManager.getCategoryName();
-        this.data = JSONObject.parseObject(dataManager.getData());
+    public ViewDashboardDataManager(DashboardDataManager dataset) {
+        this.id = dataset.getId();
+        this.userId = dataset.getUserId();
+        this.name = dataset.getName();
+        this.categoryName = dataset.getCategoryName();
+        this.data = JSONObject.parseObject(dataset.getData());
     }
 
     public Long getId() {

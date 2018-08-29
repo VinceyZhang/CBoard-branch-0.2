@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+import org.cboard.dao.DataManagerDao;
 import org.cboard.dao.DatasetDao;
 import org.cboard.dao.DatasourceDao;
 import org.cboard.dataprovider.DataProvider;
 import org.cboard.dataprovider.DataProviderManager;
 import org.cboard.dto.DataProviderResult;
 import org.cboard.dto.DataResult;
+import org.cboard.pojo.DashboardDataManager;
 import org.cboard.pojo.DashboardDataset;
 import org.cboard.pojo.DashboardDatasource;
 import org.cboard.util.PageHelper;
@@ -29,6 +31,9 @@ public class DataManagerService extends DataProviderService {
 
     @Autowired
     DatasetDao datasetDao;
+
+    @Autowired
+    DataManagerDao dataManagerDao;
 
     public DataProviderResult getTablesBySource(Long datasourceId) {
         //查找该数据源的连接信息
@@ -144,25 +149,53 @@ public class DataManagerService extends DataProviderService {
      * @param json
      * @return
      */
-    public ServiceStatus saveDataManger(String userId,String json) {
+    public ServiceStatus save(String userId, String json) {
         JSONObject jsonObject = JSONObject.parseObject(json);
-        DashboardDataset dataset = new DashboardDataset();
-        dataset.setUserId(userId);
-        dataset.setName(jsonObject.getString("name"));
-        dataset.setData(jsonObject.getString("data"));
-        dataset.setCategoryName(jsonObject.getString("categoryName"));
-        if (StringUtils.isEmpty(dataset.getCategoryName())) {
-            dataset.setCategoryName("默认分类");
+        DashboardDataManager dataManager = new DashboardDataManager();
+        dataManager.setUserId(userId);
+        dataManager.setName(jsonObject.getString("name"));
+        dataManager.setData(jsonObject.getString("data"));
+        dataManager.setCategoryName(jsonObject.getString("categoryName"));
+        if (StringUtils.isEmpty(dataManager.getCategoryName())) {
+            dataManager.setCategoryName("默认分类");
         }
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("dataset_name", dataset.getName());
-        paramMap.put("user_id", dataset.getUserId());
-        paramMap.put("category_name", dataset.getCategoryName());
-        if (datasetDao.countExistDatasetName(paramMap) <= 0) {
-            datasetDao.save(dataset);
+        paramMap.put("datamanager_name", dataManager.getName());
+        paramMap.put("user_id", dataManager.getUserId());
+        paramMap.put("category_name", dataManager.getCategoryName());
+        if (dataManagerDao.countExistDataManagerName(paramMap) <= 0) {
+            dataManagerDao.save(dataManager);
             return new ServiceStatus(ServiceStatus.Status.Success, "success");
         } else {
             return new ServiceStatus(ServiceStatus.Status.Fail, "Duplicated name");
         }
+    }
+
+    public ServiceStatus update(String userId, String json) {
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        DashboardDataManager dataManager = new DashboardDataManager();
+        dataManager.setUserId(userId);
+        dataManager.setId(jsonObject.getLong("id"));
+        dataManager.setName(jsonObject.getString("name"));
+        dataManager.setCategoryName(jsonObject.getString("categoryName"));
+        dataManager.setData(jsonObject.getString("data"));
+        if (StringUtils.isEmpty(dataManager.getCategoryName())) {
+            dataManager.setCategoryName("默认分类");
+        }
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("datamanager_name", dataManager.getName());
+        paramMap.put("user_id", dataManager.getUserId());
+        paramMap.put("datamanager_id", dataManager.getId());
+        paramMap.put("category_name", dataManager.getCategoryName());
+        if (dataManagerDao.countExistDataManagerName(paramMap) <= 0) {
+            dataManagerDao.update(dataManager);
+            return new ServiceStatus(ServiceStatus.Status.Success, "success");
+        } else {
+            return new ServiceStatus(ServiceStatus.Status.Fail, "Duplicated name");
+        }
+    }
+
+    public List<DashboardDataManager> getDataManagerList(String userId) {
+        return dataManagerDao.getDataManagerList(userId);
     }
 }
