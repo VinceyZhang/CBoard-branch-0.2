@@ -31,7 +31,9 @@
     "ADMIN": "Admin",
     "USER_ADMIN": "User Admin",
     "RES_ADMIN": "Resource Admin",
-    "DATA_MANAGER":"Data Manager"
+    "DATA_MANAGER":"Data Manager",
+    "DATA_MANAGER_WIDGET":"Data Manager Widget",
+    "DATA_MANAGER_BOARD":"Data Manager Board"
   },
   "HEADER": {
     "SIGN_OUT": "SignOut"

@@ -27,4 +27,6 @@ public interface WidgetDao {
     DashboardWidget getWidget(Long id);
 
     long checkWidgetRole(String userId, Long widgetId);
+
+    List<DashboardWidget> getWidgetListByType(Map<String, Object> map);
 }

@@ -155,6 +155,14 @@ public class DashboardController {
         return Lists.transform(list, ViewDashboardWidget.TO);
     }
 
+    @RequestMapping(value = "/getWidgetListByType")
+    public List<ViewDashboardWidget> getWidgetListByType(@RequestParam String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        List<DashboardWidget> list = widgetService.getWidgetList(userid,json);
+        return Lists.transform(list, ViewDashboardWidget.TO);
+    }
+
     @RequestMapping(value = "/updateWidget")
     public ServiceStatus updateWidget(@RequestParam(name = "json") String json) {
 
@@ -244,7 +252,7 @@ public class DashboardController {
             boardService.save(userId, jbBoard.toJSONString());
 
 
-             return boardService.getBoardData(Long.parseLong("5"));
+            return boardService.getBoardData(Long.parseLong("5"));
         }
 
     }

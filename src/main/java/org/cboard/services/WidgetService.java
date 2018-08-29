@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +36,7 @@ public class WidgetService {
         widget.setName(jsonObject.getString("name"));
         widget.setData(jsonObject.getString("data"));
         widget.setCategoryName(jsonObject.getString("categoryName"));
+        widget.setType(jsonObject.getInteger("type"));
         if (StringUtils.isEmpty(widget.getCategoryName())) {
             widget.setCategoryName("默认分类");
         }
@@ -42,6 +44,7 @@ public class WidgetService {
         paramMap.put("widget_name", widget.getName());
         paramMap.put("user_id", widget.getUserId());
         paramMap.put("category_name", widget.getCategoryName());
+        paramMap.put("type", widget.getType());
 
         if (widgetDao.countExistWidgetName(paramMap) <= 0) {
             widgetDao.save(widget);
@@ -59,6 +62,7 @@ public class WidgetService {
         widget.setName(jsonObject.getString("name"));
         widget.setCategoryName(jsonObject.getString("categoryName"));
         widget.setData(jsonObject.getString("data"));
+        widget.setType(jsonObject.getInteger("type"));
         if (StringUtils.isEmpty(widget.getCategoryName())) {
             widget.setCategoryName("默认分类");
         }
@@ -67,6 +71,7 @@ public class WidgetService {
         paramMap.put("user_id", widget.getUserId());
         paramMap.put("widget_id", widget.getId());
         paramMap.put("category_name", widget.getCategoryName());
+        paramMap.put("type", widget.getType());
         if (widgetDao.countExistWidgetName(paramMap) <= 0) {
             widgetDao.update(widget);
             return new ServiceStatus(ServiceStatus.Status.Success, "success");
@@ -102,5 +107,17 @@ public class WidgetService {
                 return new ServiceStatus(ServiceStatus.Status.Fail, datasourceDao.getDatasource(datasourceId).getName());
             }
         }
+    }
+
+    public List<DashboardWidget> getWidgetList(String userId, String json) {
+        if(json==null){
+            return   widgetDao.getWidgetList(userId);
+        }
+        JSONObject jsonObject = JSONObject.parseObject(json);
+
+        Map<String, Object> params=new HashMap<String,Object>();
+        params.put("userId",userId);
+        params.put("type",jsonObject.get("type"));
+        return widgetDao.getWidgetListByType(params);
     }
 }

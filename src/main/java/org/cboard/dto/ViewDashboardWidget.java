@@ -16,6 +16,7 @@ public class ViewDashboardWidget {
     private String userId;
     private String name;
     private String categoryName;
+    private Integer type;
     private Map<String, Object> data;
 
     public static final Function TO = new Function<DashboardWidget, ViewDashboardWidget>() {
@@ -32,6 +33,15 @@ public class ViewDashboardWidget {
         this.name = widget.getName();
         this.categoryName = widget.getCategoryName();
         this.data = JSONObject.parseObject(widget.getData());
+        this.type=widget.getType();
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Long getId() {

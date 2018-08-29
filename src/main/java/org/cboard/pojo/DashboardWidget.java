@@ -10,6 +10,15 @@ public class DashboardWidget {
     private String name;
     private String categoryName;
     private String data;
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public Long getId() {
         return id;

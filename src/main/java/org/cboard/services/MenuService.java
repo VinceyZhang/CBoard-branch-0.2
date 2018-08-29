@@ -30,6 +30,8 @@ public class MenuService {
         menuList.add(new DashboardMenu(7, -1, "SIDEBAR.ADMIN", "admin"));
         menuList.add(new DashboardMenu(8, 7, "SIDEBAR.USER_ADMIN", "admin.user"));
         menuList.add(new DashboardMenu(9, 1, "SIDEBAR.DATA_MANAGER", "config.dataManager"));
+        menuList.add(new DashboardMenu(10, 1, "SIDEBAR.DATA_MANAGER_WIDGET", "config.dataManagerWidget"));
+        menuList.add(new DashboardMenu(11, 1, "SIDEBAR.DATA_MANAGER_BOARD", "config.dataManagerBoard"));
     }
 
     public List<DashboardMenu> getMenuList() {
