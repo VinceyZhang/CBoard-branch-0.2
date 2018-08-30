@@ -1,8 +1,48 @@
+function getCategoryListByType() {
+
+    var json = {"type": 1};
+    $.ajax({
+        url: "dashboard/getCategoryListByType.do",
+        data: {json: JSON.stringify(json)},
+        success:function (res) {
+
+            if(res){
+
+            }
+        }
+    });
+}
+
+
+function getBoardListByType() {
+
+
+    var json = {"type": 1};
+    $.ajax({
+        url: "dashboard/getBoardListByType.do",
+        data: {json: JSON.stringify(json)},
+        success:function (res) {
+            debugger;
+            if(res){
+                var boarders=res;
+                for (var i in boarders) {
+                    $("#boards").append("<option value='" + boarders[i].layout.rows[0].widgets[0].widgetId + "' >"
+                        + boarders[i].name + "</option>");
+                }
+                alert( $("#boards").html());
+            }
+        }
+    });
+};
+
+
+
+getBoardListByType();
 /**
  * 保存结果集
  * @param obj
  */
-function saveDatamanager(obj){
+function saveDatamanager(obj) {
 
 }
 

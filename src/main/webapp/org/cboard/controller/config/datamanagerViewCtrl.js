@@ -1,7 +1,7 @@
 /**
  * Created by yfyuan on 2016/10/11.
  */
-cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibModal, ModalUtils, $filter, chartService, $timeout) {
+cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $uibModal, ModalUtils, $filter, chartService, $timeout) {
 
     var translate = $filter('translate');
     $scope.optFlag = 'none';
@@ -253,6 +253,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
             if (widgetData.msg == '1') {
                 $scope.alerts = [];
                 $scope.widgetData = widgetData.data;
+            //    $scope.columns=$scope.widgetData[0];
                 $scope.selects = angular.copy($scope.widgetData[0]);
             } else {
                 if (widgetData.msg != null) {
