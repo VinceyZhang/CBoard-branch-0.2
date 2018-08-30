@@ -198,4 +198,12 @@ public class DataManagerService extends DataProviderService {
     public List<DashboardDataManager> getDataManagerList(String userId) {
         return dataManagerDao.getDataManagerList(userId);
     }
+
+    public DashboardDataManager getDataManagerById(String json) {
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        DashboardDataManager dataManager = new DashboardDataManager();
+        dataManager.setId(jsonObject.getLong("id"));
+
+     return   dataManagerDao.getDataManager(dataManager.getId());
+    }
 }

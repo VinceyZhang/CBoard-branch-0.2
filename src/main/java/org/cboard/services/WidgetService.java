@@ -110,14 +110,21 @@ public class WidgetService {
     }
 
     public List<DashboardWidget> getWidgetList(String userId, String json) {
-        if(json==null){
-            return   widgetDao.getWidgetList(userId);
+        if (json == null) {
+            return widgetDao.getWidgetList(userId);
         }
         JSONObject jsonObject = JSONObject.parseObject(json);
 
-        Map<String, Object> params=new HashMap<String,Object>();
-        params.put("userId",userId);
-        params.put("type",jsonObject.get("type"));
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", userId);
+        params.put("type", jsonObject.get("type"));
         return widgetDao.getWidgetListByType(params);
+    }
+
+    public DashboardWidget getWidgetById(String json) {
+        JSONObject jsonObject = JSONObject.parseObject(json);
+
+        Long id = jsonObject.getLong("id");
+        return widgetDao.getWidget(id);
     }
 }

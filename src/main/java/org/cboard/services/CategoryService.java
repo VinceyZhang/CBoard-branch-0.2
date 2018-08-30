@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,5 +56,14 @@ public class CategoryService {
     public String delete(Long id) {
         categoryDao.delete(id);
         return "1";
+    }
+
+    public List<DashboardCategory> getCategoryListByType(String json) {
+        JSONObject jsonObject=JSONObject.parseObject(json);
+        DashboardCategory category=new DashboardCategory();
+        category.setType(jsonObject.getInteger("type"));
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("category_type",category.getType());
+        return categoryDao.getCategoryListByType(paramMap);
     }
 }

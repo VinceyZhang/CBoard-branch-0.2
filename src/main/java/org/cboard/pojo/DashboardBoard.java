@@ -11,6 +11,15 @@ public class DashboardBoard {
     private String name;
     private String layout;
     private String categoryName;
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public Long getId() {
         return id;

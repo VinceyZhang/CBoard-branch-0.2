@@ -22,16 +22,19 @@ public class MenuService {
 
     static {
         menuList.add(new DashboardMenu(1, -1, "SIDEBAR.CONFIG", "config"));
-        menuList.add(new DashboardMenu(2, 1, "SIDEBAR.DATA_SOURCE", "config.datasource"));
-        menuList.add(new DashboardMenu(3, 1, "SIDEBAR.CUBE", "config.dataset"));
-        menuList.add(new DashboardMenu(4, 1, "SIDEBAR.WIDGET", "config.widget"));
+        menuList.add(new DashboardMenu(2, 13, "SIDEBAR.DATA_SOURCE", "config.datasource"));
+        menuList.add(new DashboardMenu(3, 13, "SIDEBAR.CUBE", "config.dataset"));
+        menuList.add(new DashboardMenu(4, 13, "SIDEBAR.WIDGET", "config.widget"));
         menuList.add(new DashboardMenu(5, 1, "SIDEBAR.DASHBOARD", "config.board"));
         menuList.add(new DashboardMenu(6, 1, "SIDEBAR.DASHBOARD_CATEGORY", "config.category"));
         menuList.add(new DashboardMenu(7, -1, "SIDEBAR.ADMIN", "admin"));
         menuList.add(new DashboardMenu(8, 7, "SIDEBAR.USER_ADMIN", "admin.user"));
-        menuList.add(new DashboardMenu(9, 1, "SIDEBAR.DATA_MANAGER", "config.dataManager"));
-        menuList.add(new DashboardMenu(10, 1, "SIDEBAR.DATA_MANAGER_WIDGET", "config.dataManagerWidget"));
-        menuList.add(new DashboardMenu(11, 1, "SIDEBAR.DATA_MANAGER_BOARD", "config.dataManagerBoard"));
+        menuList.add(new DashboardMenu(9, 12, "SIDEBAR.DATA_MANAGER", "config.dataManager"));
+        menuList.add(new DashboardMenu(10, 12, "SIDEBAR.DATA_MANAGER_WIDGET", "config.dataManagerWidget"));
+        menuList.add(new DashboardMenu(11, 12, "SIDEBAR.DATA_MANAGER_BOARD", "config.dataManagerBoard"));
+        menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_DIR", "config.dataManagerDir"));
+        menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_BOARD_VIEW", "config.dataManagerBoardView"));
+        menuList.add(new DashboardMenu(13, 1, "SIDEBAR.DATA_VIEW", "config.data_view"));
     }
 
     public List<DashboardMenu> getMenuList() {

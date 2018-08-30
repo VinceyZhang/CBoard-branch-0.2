@@ -163,6 +163,15 @@ public class DashboardController {
         return Lists.transform(list, ViewDashboardWidget.TO);
     }
 
+    @RequestMapping(value = "/getWidgetById")
+    public DashboardWidget getWidgetById(@RequestParam(name = "json") String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        DashboardWidget view = widgetService.getWidgetById(json);
+
+        return view;
+    }
+
     @RequestMapping(value = "/updateWidget")
     public ServiceStatus updateWidget(@RequestParam(name = "json") String json) {
 
@@ -182,6 +191,14 @@ public class DashboardController {
 
         String userid = authenticationService.getCurrentUser().getUserId();
         List<DashboardBoard> list = boardService.getBoardList(userid);
+        return Lists.transform(list, ViewDashboardBoard.TO);
+    }
+
+    @RequestMapping(value = "/getBoardListByType")
+    public List<ViewDashboardBoard> getBoardListByType(@RequestParam(name = "json") String json) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        List<DashboardBoard> list = boardService.getBoardListByType(userid,json);
         return Lists.transform(list, ViewDashboardBoard.TO);
     }
 
@@ -269,6 +286,13 @@ public class DashboardController {
         List<DashboardCategory> list = categoryDao.getCategoryList();
         return list;
     }
+
+    @RequestMapping(value = "/getCategoryListByType")
+    public List<DashboardCategory> getCategoryListByType(@RequestParam(name = "json") String json) {
+        List<DashboardCategory> list = categoryService.getCategoryListByType(json);
+        return list;
+    }
+
 
     @RequestMapping(value = "/updateCategory")
     public ServiceStatus updateCategory(@RequestParam(name = "json") String json) {

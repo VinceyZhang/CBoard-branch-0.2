@@ -43,6 +43,14 @@ public class DataManagerController {
         return Lists.transform(list, ViewDashboardDataManager.TO);
     }
 
+    @RequestMapping(value = "/getDataManagerById")
+    public DashboardDataManager getDataManagerById(@RequestParam(name = "json")String json) {
+
+
+        DashboardDataManager manager = dataManagerService.getDataManagerById(json);
+        return manager;
+    }
+
 
     @RequestMapping(value = "/saveNewDataManager")
     public ServiceStatus saveNewDataManager(@RequestParam(name = "json") String json) {

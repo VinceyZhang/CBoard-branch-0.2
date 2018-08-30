@@ -10,7 +10,6 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
     $scope.curBoard = {layout: {rows: []}};
     $scope.alerts = [];
     $scope.verify = {boardName: true};
-
     $scope.treeData = [];
     var treeID = "boardTreeID";
     var originalData = [];
@@ -43,9 +42,9 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
     };
 
     var getDatasetList = function () {
-        $http.get("dashboard/getDatasetList.do").success(function (response) {
+        $http.post("dataManager/getDataManagerList.do").success(function (response) {
             $scope.datasetList = response;
-        }).then ($http.get("dashboard/getWidgetList.do").success(function (response) {
+        }).then ($http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type":1})}).success(function (response) {
             $scope.widgetList = response;
             $scope.widgetList = $scope.widgetList.map(function(w) {
                 if (w.data.datasetId != null) {

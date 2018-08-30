@@ -7,6 +7,11 @@
        order by category_name
     </select>
 
+    <select id="getCategoryListByType" resultType="org.cboard.pojo.DashboardCategory">
+       SELECT category_id id,user_id userId,category_name name FROM dashboard_category WHERE category_type =  #{category_type}
+       order by category_name
+    </select>
+
     <insert id="save" parameterType="org.cboard.pojo.DashboardCategory">
         <![CDATA[
         INSERT INTO dashboard_category(user_id,category_name) VALUES (#{userId},#{name})

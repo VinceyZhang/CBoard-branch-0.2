@@ -18,6 +18,7 @@ public class ViewDashboardBoard {
     private String name;
     private Map<String, Object> layout;
     private String categoryName;
+    private Integer type;
 
     public static final Function TO = new Function<DashboardBoard, ViewDashboardBoard>() {
         @Nullable
@@ -34,6 +35,15 @@ public class ViewDashboardBoard {
         this.name = board.getName();
         this.layout = JSONObject.parseObject(board.getLayout());
         this.categoryName = board.getCategoryName();
+        this.type=board.getType();
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Long getId() {

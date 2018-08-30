@@ -21,4 +21,6 @@ public interface DataManagerDao {
     DashboardDataManager getDataManager(Long id);
 
     long checkDataManagerRole(String userId, Long widgetId);
+
+    DashboardDataManager getDataManagerById(Long id);
 }

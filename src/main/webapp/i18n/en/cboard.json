@@ -33,7 +33,10 @@
     "RES_ADMIN": "Resource Admin",
     "DATA_MANAGER":"Data Manager",
     "DATA_MANAGER_WIDGET":"Data Manager Widget",
-    "DATA_MANAGER_BOARD":"Data Manager Board"
+    "DATA_MANAGER_BOARD":"Data Manager Board",
+    "DATA_MANAGER_DIR":"Data Manager Config",
+    "DATA_VIEW":"Data View Config",
+    "DATA_MANAGER_BOARD_VIEW":"Dashboard"
   },
   "HEADER": {
     "SIGN_OUT": "SignOut"

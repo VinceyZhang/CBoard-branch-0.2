@@ -104,4 +104,17 @@ public class BoardService {
         boardDao.delete(id, userId);
         return "1";
     }
+
+    public List<DashboardBoard> getBoardListByType(String userId, String json) {
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        DashboardBoard board = new DashboardBoard();
+        board.setUserId(userId);
+        board.setType(jsonObject.getInteger("type"));
+
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+
+        paramMap.put("user_id", board.getUserId());
+        paramMap.put("board_type", board.getType());
+        return boardDao.getBoardListByType(paramMap);
+    }
 }

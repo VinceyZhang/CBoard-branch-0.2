@@ -21,4 +21,6 @@ public interface CategoryDao {
     int update(DashboardCategory dashboardCategory);
 
     int delete(Long id);
+
+    List<DashboardCategory> getCategoryListByType(Map<String, Object> map);
 }

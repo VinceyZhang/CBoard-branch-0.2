@@ -74,6 +74,10 @@ angular.module('cBoard').config(['$stateProvider', function ($stateProvider) {
         url: '/dataManagerBoard',
         templateUrl: 'org/cboard/view/config/dataManagerBoard.html',
         controller: 'dataManagerBoardCtrl'
+    }).state('config.dataManagerBoardView', {
+        url: '/dataManagerBoardView',
+        templateUrl: 'org/cboard/view/dashboard/dataManagerBoardView.html',
+        controller: 'dataManagerBoardViewCtrl'
     }).state('admin', {
         url: '/admin',
         abstract: true,

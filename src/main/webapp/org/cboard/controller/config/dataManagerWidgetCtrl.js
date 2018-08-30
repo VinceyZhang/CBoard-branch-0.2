@@ -118,7 +118,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
     $scope.filterSelect = {};
     $scope.verify = {widgetName: true};
 
-    $http.get("dashboard/getDatasetList.do").success(function (response) {
+    $http.get("dataManager/getDataManagerList.do").success(function (response) {
         $scope.datasetList = response;
     });
 
