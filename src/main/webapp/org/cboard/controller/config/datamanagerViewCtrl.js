@@ -9,10 +9,50 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
     $scope.curWidget = {};
     $scope.alerts = [];
     $scope.verify = {dsName: true};
+    $scope.colParams = [];
+    $scope.params = "";
+    $scope.pages = [];
+    $scope.pagesParams = null;
 
     var treeID = 'dataManagerTreeID'; // Set to a same value with treeDom
     var originalData = [];
     var updateUrl = "dataManager/updateDataManager.do";
+
+    $scope.goPage = function (p) {
+        var curPage = p;
+        $scope.pagesParams = {"curPage": curPage, "pageSize": 3};
+        $scope.searchByParams();
+    }
+    $scope.searchByParams = function () {
+
+        var cps = $scope.colParams;
+        var cols = $scope.curDataManager.data.params;
+        var ps = {};
+        for (var i in cps) {
+            if (cps[i] != null && cps[i] != "") {
+                ps[cols[i]] = cps[i];
+            }
+        }
+        $scope.params = angular.toJson(ps);
+
+        dataService.getDataByParams($scope.datasource.id, $scope.curWidget.query, $scope.params, $scope.pagesParams, null, function (widgetData) {
+            $scope.loading = false;
+            $scope.toChartDisabled = false;
+            if (widgetData.msg == '1') {
+                $scope.alerts = [];
+                $scope.widgetData = widgetData.data;
+                // $scope.columns=$scope.widgetData[0];
+                // $scope.columnsDatas=
+                $scope.selects = angular.copy($scope.widgetData[0]);
+            } else {
+                if (widgetData.msg != null) {
+                    $scope.alerts = [{msg: widgetData.msg, type: 'danger'}];
+                }
+            }
+
+        });
+
+    };
 
     $http.get("dashboard/getDatasourceList.do").success(function (response) {
         $scope.datasourceList = response;
@@ -21,8 +61,8 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
     /**
      * 切换数据源以加载表
      */
-    $scope.changeTableBySource=function(ds){
-    alert(ds.id);
+    $scope.changeTableBySource = function (ds) {
+        alert(ds.id);
         $http.post("datamanager/getTablesBySource.do", {id: ds.id}).success(function (response) {
             if (response.status == '1') {
                 doEditDs(ds);
@@ -74,6 +114,11 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
         $scope.optFlag = 'edit';
         $scope.curDataManager = angular.copy(ds);
         $scope.curDataManager.name = $scope.curDataManager.categoryName + '/' + $scope.curDataManager.name;
+        if ($scope.curDataManager.data.params != null) {
+            $scope.showParams = true;
+        } else {
+            $scope.showParams = false;
+        }
         if (!$scope.curDataManager.data.expressions) {
             $scope.curDataManager.data.expressions = [];
         }
@@ -109,7 +154,8 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
 
     var validate = function () {
         $scope.alerts = [];
-        if (!$scope.curDataManager.name) {1
+        if (!$scope.curDataManager.name) {
+            1
             $scope.alerts = [{msg: translate('CONFIG.DATASET.NAME') + translate('COMMON.NOT_EMPTY'), type: 'danger'}];
             $scope.verify = {dsName: false};
             $("#DatasetName").focus();
@@ -121,7 +167,7 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
     $scope.save = function () {
         $scope.datasource ? $scope.curDataManager.data.datasource = $scope.datasource.id : null;
         $scope.curDataManager.data.query = $scope.curWidget.query;
-        $scope.curDataManager.data.params=$scope.curDataManager.params;
+        $scope.curDataManager.data.params = $scope.curDataManager.params;
         if (!validate()) {
             return;
         }
@@ -243,17 +289,22 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
         });
     };
 
-    $scope.loadData = function () {
+    $scope.loadData = function (params) {
         cleanPreview();
         $scope.loading = true;
 
-        dataService.getData($scope.datasource.id, $scope.curWidget.query, null, function (widgetData) {
+
+        dataService.getDataByParams($scope.datasource.id, $scope.curWidget.query, null, null, null, function (widgetData) {
             $scope.loading = false;
             $scope.toChartDisabled = false;
             if (widgetData.msg == '1') {
                 $scope.alerts = [];
                 $scope.widgetData = widgetData.data;
-            //    $scope.columns=$scope.widgetData[0];
+                $scope.pages = [];
+                for (var i = 1; i <= widgetData.totalPage; i++) {
+                    $scope.pages.push(i);
+                }
+
                 $scope.selects = angular.copy($scope.widgetData[0]);
             } else {
                 if (widgetData.msg != null) {
@@ -282,6 +333,7 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
 
             chartService.render($('#dataset_preview'), $scope.widgetData, widget, null, {myheight: 300});
         });
+
     };
 
     var cleanPreview = function () {

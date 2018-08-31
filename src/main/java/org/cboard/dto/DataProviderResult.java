@@ -10,6 +10,9 @@ public class DataProviderResult implements Serializable{
     private String[][] data;
     private String msg;
     private int resultCount = 0;
+    private Integer curPage;
+    private Integer pageSize;
+    private Integer totalPage;
 
     public DataProviderResult(String[][] data, String msg) {
         this.data = data;
@@ -20,6 +23,30 @@ public class DataProviderResult implements Serializable{
         this.data = data;
         this.msg = msg;
         this.resultCount = resultCount;
+    }
+
+    public Integer getCurPage() {
+        return curPage;
+    }
+
+    public void setCurPage(Integer curPage) {
+        this.curPage = curPage;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(Integer totalPage) {
+        this.totalPage = totalPage;
     }
 
     public String[][] getData() {

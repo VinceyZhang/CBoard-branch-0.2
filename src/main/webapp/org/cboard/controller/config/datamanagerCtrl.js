@@ -6,6 +6,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     var translate = $filter('translate');
     $scope.optFlag = 'none';
     $scope.curDataManager = {data: {expressions: []}};
+    $scope.curDataManager.data.params="";
     $scope.curWidget = {};
     $scope.alerts = [];
     $scope.verify = {dsName: true};
@@ -121,7 +122,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
     $scope.save = function () {
         $scope.datasource ? $scope.curDataManager.data.datasource = $scope.datasource.id : null;
         $scope.curDataManager.data.query = $scope.curWidget.query;
-        $scope.curDataManager.data.params=$scope.curDataManager.params;
+        $scope.curDataManager.data.params=$scope.curDataManager.data.params.split(",");
         if (!validate()) {
             return;
         }

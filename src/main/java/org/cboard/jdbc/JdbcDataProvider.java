@@ -6,10 +6,7 @@ import org.cboard.dataprovider.annotation.ProviderName;
 import org.cboard.dataprovider.annotation.QueryParameter;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by yfyuan on 2016/8/17.
@@ -42,8 +39,9 @@ public class JdbcDataProvider extends DataProvider {
         List<String[]> list = null;
 
         try {
-            ps = con.prepareStatement(sql);
+            ps = con.prepareStatement(new String(sql.getBytes("ISO-8859-1"),"UTF-8"));
             rs = ps.executeQuery();
+            System.out.print("1111"+ps);
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             list = new LinkedList<>();
@@ -82,6 +80,65 @@ public class JdbcDataProvider extends DataProvider {
 
         return list.toArray(new String[][]{});
     }
+
+//    public String[][] getDataByParams(Map<String, String> dataSource, Map<String, String> query, Map<String, String> params) throws Exception {
+//
+//        Connection con = getConnection(dataSource);
+//
+//        StringBuffer sql = new StringBuffer(query.get(SQL));
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//        List<String[]> list = null;
+//
+//        try {
+//
+//            Iterator<Map.Entry<String, String>> iterator = params.entrySet().iterator();
+//            while (iterator.hasNext()) {
+//                Map.Entry<String, String> entry = iterator.next();
+//                sql. (" and ");
+//                sql.params(entry.getKey() + " = \'" + entry.getValue() + "\' ");
+//            }
+//
+//            ps = con.prepareStatement(sql);
+//            rs = ps.executeQuery();
+//            ResultSetMetaData metaData = rs.getMetaData();
+//            int columnCount = metaData.getColumnCount();
+//            list = new LinkedList<>();
+//            String[] row = new String[columnCount];
+//            for (int i = 0; i < columnCount; i++) {
+//                row[i] = metaData.getColumnLabel(i + 1);
+//            }
+//            list.add(row);
+//            while (rs.next()) {
+//                row = new String[columnCount];
+//                for (int j = 0; j < columnCount; j++) {
+//                    row[j] = rs.getString(j + 1);
+//                }
+//                list.add(row);
+//            }
+//        } finally {
+//            if (rs != null) {
+//                try {
+//                    rs.close();
+//                } catch (Exception e) {
+//                }
+//            }
+//            if (ps != null) {
+//                try {
+//                    ps.close();
+//                } catch (Exception e) {
+//                }
+//            }
+//            if (con != null) {
+//                try {
+//                    con.close();
+//                } catch (Exception e) {
+//                }
+//            }
+//        }
+//
+//        return list.toArray(new String[][]{});
+//    }
 
     @Override
     public int resultCount(Map<String, String> dataSource, Map<String, String> query) throws Exception {

@@ -35,6 +35,9 @@ public class DataManagerService extends DataProviderService {
     @Autowired
     DataManagerDao dataManagerDao;
 
+    @Autowired
+    CachedDataProviderService cachedDataProviderService;
+
     public DataProviderResult getTablesBySource(Long datasourceId) {
         //查找该数据源的连接信息
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
@@ -113,7 +116,7 @@ public class DataManagerService extends DataProviderService {
         query.put("sql", sbSql.toString());
         DataResult result = getData(datasource, query, null);
         result.setTotalPage(pageHelper.getTotalPage());
-        if(params==null){
+        if (params == null) {
             result.setSql(sbSql.toString());
             result.setDatasourceId(datasourceId);
         }
@@ -145,6 +148,7 @@ public class DataManagerService extends DataProviderService {
 
     /**
      * 保存数据集，即保存sql
+     *
      * @param userId
      * @param json
      * @return
@@ -204,6 +208,43 @@ public class DataManagerService extends DataProviderService {
         DashboardDataManager dataManager = new DashboardDataManager();
         dataManager.setId(jsonObject.getLong("id"));
 
-     return   dataManagerDao.getDataManager(dataManager.getId());
+        return dataManagerDao.getDataManager(dataManager.getId());
+    }
+
+
+    public DataProviderResult getData(Long datasourceId, Map<String, String> query, String pagesParams, Long datasetId) {
+
+        PageHelper pageHelper = new PageHelper();
+        pageHelper.setCurPage(1);
+        pageHelper.setPageSize(2);
+        if (pagesParams != null) {
+            JSONObject pgObject = JSONObject.parseObject(pagesParams);
+            pageHelper.setCurPage(pgObject.getInteger("curPage")==null?1:pgObject.getInteger("curPage"));
+            pageHelper.setPageSize(pgObject.getInteger("pageSize")==null?2:pgObject.getInteger("pageSize"));
+        }
+
+        StringBuffer sbSql = new StringBuffer(query.get("sql"));
+        sbSql.append(" limit " + (pageHelper.getCurPage() - 1) * pageHelper.getPageSize() + "," + pageHelper.getPageSize());
+        Map<String, String> q = new HashMap<String, String>();
+        q.put("sql", sbSql.toString());
+        DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
+
+        JSONObject config = JSONObject.parseObject(datasource.getConfig());
+
+        Map<String, String> parameterMap = Maps.transformValues(config, Functions.toStringFunction());
+        Integer resultCount = null;
+        try {
+            DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
+            resultCount = dataProvider.resultCount(parameterMap, q);
+            pageHelper.setTotalCount(resultCount);
+        } catch (Exception e) {
+        }
+
+        pageHelper.setTotalPage(resultCount);
+        DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, datasetId);
+        result.setTotalPage(pageHelper.getTotalPage());
+        result.setPageSize(pageHelper.getPageSize());
+        result.setCurPage(pageHelper.getCurPage());
+        return result;
     }
 }

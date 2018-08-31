@@ -11,6 +11,7 @@ import org.cboard.dataprovider.DataProviderViewManager;
 import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
+import org.cboard.util.SqlTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,6 +67,9 @@ public class DashboardController {
     @Autowired
     private DatasetService datasetService;
 
+    @Autowired
+    private DataManagerService dataManagerService;
+
     @RequestMapping(value = "/test")
     public ServiceStatus test(@RequestParam(name = "datasource", required = false) String datasource, @RequestParam(name = "query", required = false) String query) {
         JSONObject queryO = JSONObject.parseObject(query);
@@ -92,6 +96,19 @@ public class DashboardController {
             strParams = Maps.transformValues(queryO, Functions.toStringFunction());
         }
         DataProviderResult result = cachedDataProviderService.getData(datasourceId, strParams, datasetId, reload);
+        return result;
+    }
+
+    @RequestMapping(value = "/getCachedDataByParams")
+    public DataProviderResult getCachedDataByParams(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
+                                                    @RequestParam(name = "query", required = false) String query,
+                                                    @RequestParam(name = "datasetId", required = false) Long datasetId,
+                                                    @RequestParam(name = "params", required = false) String params,
+                                                    @RequestParam(name = "pagesParams", required = false) String pagesParams) {
+
+        Map<String, String> strParams = SqlTools.appendParams(query, params);
+        DataProviderResult result=  dataManagerService.getData(datasourceId, strParams, pagesParams,datasetId);
+
         return result;
     }
 
@@ -159,7 +176,7 @@ public class DashboardController {
     public List<ViewDashboardWidget> getWidgetListByType(@RequestParam String json) {
 
         String userid = authenticationService.getCurrentUser().getUserId();
-        List<DashboardWidget> list = widgetService.getWidgetList(userid,json);
+        List<DashboardWidget> list = widgetService.getWidgetList(userid, json);
         return Lists.transform(list, ViewDashboardWidget.TO);
     }
 
@@ -198,7 +215,7 @@ public class DashboardController {
     public List<ViewDashboardBoard> getBoardListByType(@RequestParam(name = "json") String json) {
 
         String userid = authenticationService.getCurrentUser().getUserId();
-        List<DashboardBoard> list = boardService.getBoardListByType(userid,json);
+        List<DashboardBoard> list = boardService.getBoardListByType(userid, json);
         return Lists.transform(list, ViewDashboardBoard.TO);
     }
 

@@ -21,6 +21,18 @@ cBoard.service('dataService', function ($http, updateService) {
         });
     };
 
+    this.getDataByParams = function (datasource, query, params, pagesParams, datasetId, callback, fromCache) {
+        $http.post("dashboard/getCachedDataByParams.do", {
+            datasourceId: datasource,
+            query: angular.toJson(query),
+            datasetId: datasetId,
+            params: params,
+            reload: fromCache ? false : true
+        }).success(function (response) {
+            callback(response);
+        });
+    };
+
     var getDataSeries = function (rawData, chartConfig) {
         var result = [];
         _.each(chartConfig.values, function (v) {
@@ -28,8 +40,8 @@ cBoard.service('dataService', function ($http, updateService) {
                 var series = configToDataSeries(rawData, c);
                 _.each(series, function (s) {
                     if (!_.find(result, function (e) {
-                            return JSON.stringify(e) == JSON.stringify(s);
-                        })) {
+                        return JSON.stringify(e) == JSON.stringify(s);
+                    })) {
                         result.push(s);
                     }
                 });
