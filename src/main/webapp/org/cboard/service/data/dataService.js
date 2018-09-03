@@ -27,7 +27,8 @@ cBoard.service('dataService', function ($http, updateService) {
             query: angular.toJson(query),
             datasetId: datasetId,
             params: params,
-            reload: fromCache ? false : true
+            pagesParams:pagesParams==null?null:angular.toJson(pagesParams),
+            reload: fromCache ? false : true,
         }).success(function (response) {
             callback(response);
         });

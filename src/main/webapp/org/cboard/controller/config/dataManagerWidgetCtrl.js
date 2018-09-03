@@ -118,7 +118,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
     $scope.filterSelect = {};
     $scope.verify = {widgetName: true};
 
-    $http.get("dataManager/getDataManagerList.do").success(function (response) {
+    $http.get("dashboard/getDatasetList.do").success(function (response) {
         $scope.datasetList = response;
     });
 
@@ -143,7 +143,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
     };
 
     var getWidgetList = function (callback) {
-        $http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type":1})}).success(function (response) {
+        $http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type": 1})}).success(function (response) {
             $scope.widgetList = response;
             if (callback) {
                 callback();
@@ -460,6 +460,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
                 break;
             case 'table':
                 $scope.curWidget.config.selects = angular.copy($scope.widgetData[0]);
+                $scope.curWidget.config.selectParams = angular.copy($scope.widgetData[0]);
                 $scope.curWidget.config.keys = new Array();
                 $scope.curWidget.config.groups = new Array();
                 $scope.curWidget.config.values = [{
@@ -467,6 +468,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
                     cols: []
                 }];
                 $scope.curWidget.config.filters = new Array();
+                $scope.curWidget.config.params = [];
                 break;
             case 'funnel':
                 $scope.curWidget.config.selects = angular.copy($scope.widgetData[0]);
@@ -613,7 +615,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
             o.categoryName = translate("COMMON.DEFAULT_CATEGORY");
         }
         o.data = {};
-        o.data.params=$scope.curWidget.params;
+        o.data.params = $scope.curWidget.params;
         o.data.config = $scope.curWidget.config;
         if ($scope.customDs) {
             o.data.query = $scope.curWidget.query;
@@ -734,7 +736,7 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
 
     $scope.getChartView = function () {
         if ($scope.curWidget.config && $scope.curWidget.config.chart_type) {
-            return 'org/cboard/view/config/chart/' + $scope.curWidget.config.chart_type + '.html';
+            return 'org/cboard/view/config/chart/datamanager/' + $scope.curWidget.config.chart_type + '.html';
         }
     };
 
@@ -763,11 +765,30 @@ cBoard.controller('dataManagerWidgetCtrl', function ($scope, $stateParams, $http
                 list[index] = item.col;
             }
         },
+        toSelectParams: function (list, index, item, type) {
+            if (type == 'col') {
+                list[index] = item.col;
+            } else if (type == 'key' || type == 'group' || type == 'filter' ) {
+                list[index] = item.col;
+            }else if(type == 'params'){
+                list[index] = item;
+            }
+        },
         toKeysGroups: function (list, index, item, type) {
             if (type == 'col') {
                 list[index] = {col: item.col, type: 'eq', values: []};
             } else if (type == 'select') {
                 list[index] = {col: item, type: 'eq', values: []};
+            }
+        },
+        toParamsGroups: function (list, index, item, type) {
+            if (type == 'col') {
+                list[index] = {col: item.col, type: 'eq', values: []};
+            } else if (type == 'select') {
+                list[index] = {col: item, type: 'eq', values: []};
+            }
+            else if (type == 'selectParams') {
+                list[index] = item;
             }
         }
     };

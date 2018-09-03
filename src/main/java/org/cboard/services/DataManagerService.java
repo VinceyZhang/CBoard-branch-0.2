@@ -216,7 +216,7 @@ public class DataManagerService extends DataProviderService {
 
         PageHelper pageHelper = new PageHelper();
         pageHelper.setCurPage(1);
-        pageHelper.setPageSize(2);
+        pageHelper.setPageSize(10);
         if (pagesParams != null) {
             JSONObject pgObject = JSONObject.parseObject(pagesParams);
             pageHelper.setCurPage(pgObject.getInteger("curPage")==null?1:pgObject.getInteger("curPage"));
@@ -225,8 +225,7 @@ public class DataManagerService extends DataProviderService {
 
         StringBuffer sbSql = new StringBuffer(query.get("sql"));
         sbSql.append(" limit " + (pageHelper.getCurPage() - 1) * pageHelper.getPageSize() + "," + pageHelper.getPageSize());
-        Map<String, String> q = new HashMap<String, String>();
-        q.put("sql", sbSql.toString());
+
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
 
         JSONObject config = JSONObject.parseObject(datasource.getConfig());
@@ -235,16 +234,22 @@ public class DataManagerService extends DataProviderService {
         Integer resultCount = null;
         try {
             DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
-            resultCount = dataProvider.resultCount(parameterMap, q);
+            resultCount = dataProvider.resultCount(parameterMap, query);
             pageHelper.setTotalCount(resultCount);
         } catch (Exception e) {
         }
-
+        Map<String, String> q = new HashMap<String, String>();
+        q.put("sql", sbSql.toString());
         pageHelper.setTotalPage(resultCount);
         DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, datasetId);
         result.setTotalPage(pageHelper.getTotalPage());
         result.setPageSize(pageHelper.getPageSize());
         result.setCurPage(pageHelper.getCurPage());
         return result;
+    }
+
+    public ServiceStatus delete(String userId, Long id) {
+        dataManagerDao.delete(id, userId);
+        return new ServiceStatus(ServiceStatus.Status.Success, "success");
     }
 }

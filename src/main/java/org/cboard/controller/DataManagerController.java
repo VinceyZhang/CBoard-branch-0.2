@@ -35,6 +35,14 @@ public class DataManagerController {
     private AuthenticationService authenticationService;
 
 
+    @RequestMapping(value = "/deleteDataManager")
+    public ServiceStatus deleteDataset(@RequestParam(name = "id") Long id) {
+
+        String userid = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.delete(userid, id);
+    }
+
+
     @RequestMapping(value = "/getDataManagerList")
     public List<ViewDashboardDataManager> getDataManagerList() {
 

@@ -22,13 +22,13 @@
   "SIDEBAR": {
     "C_DASHBOARD": "看板",
     "MY_DASHBOARD": "我的看板",
-    "CONFIG": "配置",
+    "CONFIG": "配置管理",
     "DATA_SOURCE": "数据源管理",
     "CUBE": "数据集管理",
     "WIDGET": "图表设计",
     "DASHBOARD": "看板设计",
     "DASHBOARD_CATEGORY": "看板分类",
-    "ADMIN": "管理",
+    "ADMIN": "系统管理",
     "USER_ADMIN": "用户管理",
     "RES_ADMIN": "资源管理",
     "DATA_MANAGER":"数据集管理",
@@ -36,7 +36,8 @@
     "DATA_MANAGER_BOARD":"看板设计",
     "DATA_MANAGER_DIR":"数据管理",
     "DATA_VIEW":"可视化配置",
-    "DATA_MANAGER_BOARD_VIEW":"看板查看"
+    "DATA_MANAGER_BOARD_VIEW":"看板查看",
+    "MY_DATA":"数据管理看板"
   },
   "HEADER": {
     "SIGN_OUT": "注销"

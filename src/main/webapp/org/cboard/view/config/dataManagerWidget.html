@@ -143,40 +143,119 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-12" ng-include="getChartView()"></div>
                                 <div class="col-md-12">
-                                    <label class="col-sm-2 control-label">{{'CONFIG.WIDGET.ROW'|translate}}</label>
-                                    <div class="col-sm-10">
-                                        <!--<div dnd-list="curWidget.config.keys"-->
-                                             <!--dnd-inserted="dndTransfer.toKeysGroups(curWidget.config.keys,index,item,type)"-->
-                                             <!--dnd-allowed-types="['select','col','group','key','filter']"-->
-                                             <!--class="form-control" style="min-height: 35px;height: auto;padding: 0px">-->
-                                            <!--<div class="dndPlaceholder sort-highlight"-->
-                                                 <!--style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">-->
-                                            <!--</div>-->
-                                            <!--<div ng-repeat="o in curWidget.config.keys" dnd-draggable="o"-->
-                                                 <!--dnd-effect-allowed="move"-->
-                                                 <!--dnd-moved="curWidget.config.keys.splice($index, 1)" dnd-type="'key'"-->
-                                                 <!--class="btn-group" style="cursor: move;margin: 3px 3px;">-->
-                                                <!--<button type="button" class="btn btn-default btn-sm"-->
-                                                        <!--style="cursor: move;"-->
-                                                        <!--ng-click="curWidget.config.selects.push(o.col);curWidget.config.keys.splice($index, 1);">-->
-                                                    <!--{{o.col}}-->
-                                                <!--</button>-->
-                                                <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle"-->
-                                                        <!--ng-click="editSort(o)">-->
-                                                    <!--<span class="fa"-->
-                                                          <!--ng-class="{undefined:'fa-sort','asc':'fa-sort-asc','desc':'fa-sort-desc'}[o.sort]"></span>-->
-                                                <!--</button>-->
-                                                <!--<button type="button" class="btn btn-default btn-sm dropdown-toggle"-->
-                                                        <!--ng-click="editFilter(curWidget.config.keys,$index)">-->
-                                                    <!--<span class="fa fa-edit"></span>-->
-                                                <!--</button>-->
-                                            <!--</div>-->
-                                        <!--</div>-->
-                                        <input ng-model="curWidget.params"/>
+                                    <div class="form-group" style="margin-bottom: 0px">
+                                        <label class="col-sm-2 control-label">选择需要展示的列</label>
+                                        <div class="col-sm-10">
+                                            <div dnd-list="curWidget.config.selects"
+                                                 dnd-inserted="dndTransfer.toSelect(curWidget.config.selects,index,item,type)"
+                                                 dnd-allowed-types="['select','col','group','key','filter']"
+                                                 class="form-control"
+                                                 style="min-height: 35px;height: auto;padding: 0px">
+                                                <div class="dndPlaceholder sort-highlight"
+                                                     style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">
+                                                </div>
+                                                <span ng-repeat="o in curWidget.config.selects track by o"
+                                                      dnd-draggable="o"
+                                                      dnd-effect-allowed="move"
+                                                      dnd-moved="curWidget.config.selects.splice($index, 1)"
+                                                      dnd-type="'select'"
+                                                      class="btn btn-default btn-sm"
+                                                      style="cursor: move;margin: 3px 3px;">{{o}}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 0px">
+                                        <label class="col-sm-2 control-label">已选择展示列</label>
+                                        <div class="col-sm-10">
+                                            <div dnd-list="curWidget.config.keys"
+                                                 dnd-inserted="dndTransfer.toKeysGroups(curWidget.config.keys,index,item,type)"
+                                                 dnd-allowed-types="['select','col','group','key','filter']"
+                                                 class="form-control"
+                                                 style="min-height: 35px;height: auto;padding: 0px">
+                                                <div class="dndPlaceholder sort-highlight"
+                                                     style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">
+                                                </div>
+                                                <div ng-repeat="o in curWidget.config.keys" dnd-draggable="o"
+                                                     dnd-effect-allowed="move"
+                                                     dnd-moved="curWidget.config.keys.splice($index, 1)"
+                                                     dnd-type="'key'"
+                                                     class="btn-group" style="cursor: move;margin: 3px 3px;">
+                                                    <button type="button" class="btn btn-default btn-sm"
+                                                            style="cursor: move;"
+                                                            ng-click="curWidget.config.selects.push(o.col);curWidget.config.keys.splice($index, 1);">
+                                                        {{o.col}}
+                                                    </button>
+                                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle"
+                                                            ng-click="editSort(o)">
+                                                        <span class="fa"
+                                                              ng-class="{undefined:'fa-sort','asc':'fa-sort-asc','desc':'fa-sort-desc'}[o.sort]"></span>
+                                                    </button>
+                                                    <button type="button" class="btn btn-default btn-sm dropdown-toggle"
+                                                            ng-click="editFilter(curWidget.config.keys,$index)">
+                                                        <span class="fa fa-edit"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 0px">
+                                        <label class="col-sm-2 control-label">选择需要做为查询参数的列</label>
+                                        <div class="col-sm-10">
+                                            <div dnd-list="curWidget.config.selectParams"
+                                                 dnd-inserted="dndTransfer.toSelectParams(curWidget.config.selects,index,item,type)"
+                                                 dnd-allowed-types="['params','selectParams']"
+                                                 class="form-control"
+                                                 style="min-height: 35px;height: auto;padding: 0px">
+                                                <div class="dndPlaceholder sort-highlight"
+                                                     style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">
+                                                </div>
+                                                <span ng-repeat="o in curWidget.config.selectParams track by o"
+                                                      dnd-draggable="o"
+                                                      dnd-effect-allowed="move"
+                                                      dnd-moved="curWidget.config.selectParams.splice($index, 1)"
+                                                      dnd-type="'selectParams'"
+                                                      class="btn btn-default btn-sm"
+                                                      style="cursor: move;margin: 3px 3px;">{{o}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group" style="margin-bottom: 0px">
+                                        <label class="col-sm-2 control-label">已选择的参数列</label>
+                                        <div class="col-sm-10">
+                                            <div dnd-list="curWidget.config.params"
+                                                 dnd-inserted="dndTransfer.toParamsGroups(curWidget.config.params,index,item,type)"
+                                                 dnd-allowed-types="['params','selectParams']"
+                                                 class="form-control"
+                                                 style="min-height: 35px;height: auto;padding: 0px">
+                                                <div class="dndPlaceholder sort-highlight"
+                                                     style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">
+                                                </div>
+                                                <div ng-repeat="o in curWidget.config.params  track by $index"
+                                                     dnd-draggable="o"
+                                                     dnd-effect-allowed="move"
+                                                     dnd-moved="curWidget.config.params.splice($index, 1)"
+                                                     dnd-type="'params'"
+                                                     class="btn-group" style="cursor: move;margin: 3px 3px;">
+                                                    <button type="button" class="btn btn-default btn-sm"
+                                                            style="cursor: move;"
+                                                            ng-click="curWidget.config.selectParams.push(o);curWidget.config.params.splice($index, 1);">
+                                                        {{o}}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="row">

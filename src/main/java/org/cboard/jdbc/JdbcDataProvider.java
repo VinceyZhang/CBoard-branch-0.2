@@ -39,9 +39,8 @@ public class JdbcDataProvider extends DataProvider {
         List<String[]> list = null;
 
         try {
-            ps = con.prepareStatement(new String(sql.getBytes("ISO-8859-1"),"UTF-8"));
+            ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
-            System.out.print("1111"+ps);
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             list = new LinkedList<>();

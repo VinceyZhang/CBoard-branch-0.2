@@ -87,7 +87,7 @@ cBoard.controller('datamanagerCtrl', function ($scope, $http, dataService, $uibM
 
     $scope.deleteDs = function (ds) {
         ModalUtils.confirm(translate("COMMON.CONFIRM_DELETE"), "modal-warning", "lg", function () {
-            $http.post("dashboard/deleteDataset.do", {id: ds.id}).success(function () {
+            $http.post("dataManager/deleteDataManager.do", {id: ds.id}).success(function () {
                 $scope.optFlag = 'none';
                 getDataManagerList();
             });

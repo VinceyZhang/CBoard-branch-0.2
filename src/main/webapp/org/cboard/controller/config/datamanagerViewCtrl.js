@@ -13,16 +13,47 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
     $scope.params = "";
     $scope.pages = [];
     $scope.pagesParams = null;
+    $scope.curPage = 0;
 
     var treeID = 'dataManagerTreeID'; // Set to a same value with treeDom
     var originalData = [];
     var updateUrl = "dataManager/updateDataManager.do";
 
     $scope.goPage = function (p) {
-        var curPage = p;
-        $scope.pagesParams = {"curPage": curPage, "pageSize": 3};
+        $scope.curPage = p;
+        $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
+        $scope.searchByParams();
+    };
+
+    $scope.initPages = function (widgetData) {
+        var curPage = widgetData.curPage == null ? 1 : widgetData.curPage;
+        var totalPage = widgetData.totalPage;
+        var begin = 1;
+        var end = 0;
+        $scope.pages = [];
+
+
+        if (curPage < 10) {
+            begin = 1;
+            end = curPage + 5 >= totalPage ? totalPage : 10;
+        } else {
+            begin = curPage - 4;
+            end = curPage + 5 >= totalPage ? totalPage : curPage + 5;
+        }
+
+
+        for (var i = begin; i <= end; i++) {
+            $scope.pages.push(i);
+        }
+    }
+
+
+    $scope.clickSearch=function(){
+        $scope.curPage = 1;
+        $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
         $scope.searchByParams();
     }
+
     $scope.searchByParams = function () {
 
         var cps = $scope.colParams;
@@ -41,8 +72,7 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
             if (widgetData.msg == '1') {
                 $scope.alerts = [];
                 $scope.widgetData = widgetData.data;
-                // $scope.columns=$scope.widgetData[0];
-                // $scope.columnsDatas=
+                $scope.initPages(widgetData);
                 $scope.selects = angular.copy($scope.widgetData[0]);
             } else {
                 if (widgetData.msg != null) {
@@ -300,10 +330,7 @@ cBoard.controller('datamanagerViewCtrl', function ($scope, $http, dataService, $
             if (widgetData.msg == '1') {
                 $scope.alerts = [];
                 $scope.widgetData = widgetData.data;
-                $scope.pages = [];
-                for (var i = 1; i <= widgetData.totalPage; i++) {
-                    $scope.pages.push(i);
-                }
+                $scope.initPages(widgetData);
 
                 $scope.selects = angular.copy($scope.widgetData[0]);
             } else {
