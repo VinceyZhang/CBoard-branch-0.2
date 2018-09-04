@@ -74,13 +74,12 @@ angular.module('cBoard').config(['$stateProvider', function ($stateProvider) {
         url: '/dataManagerBoard',
         templateUrl: 'org/cboard/view/config/dataManagerBoard.html',
         controller: 'dataManagerBoardCtrl'
-    })
-        .state('config.dataManagerBoardView', {
-        url: '/dataManagerView',
-        templateUrl: 'org/cboard/view/config/datamanagerView.html',
+    }).state('config.dataManagerBoardView', {
+        url: '/{id}',
+        params: {id: null},
+        templateUrl: 'org/cboard/view/dashboard/dataManagerView.html',
         controller: 'datamanagerViewCtrl'
-    })
-        .state('admin', {
+    }).state('admin', {
         url: '/admin',
         abstract: true,
         template: '<div ui-view></div>'

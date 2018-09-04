@@ -34,12 +34,46 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-9">
+                <form class="form-horizontal">
+                    <div class="col-md-6" >
+                        <div ng-repeat="p in params track by $index">
+
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label">{{p}}</label>
+                                <div class="col-sm-10">
+                                    <input  ng-model="colParams[$index]"   class="form-control"  placeholder="">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button ng-click="clickSearch()" class="btn btn-default">查询</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <table class="table table-hover">
+                    <tr ng-repeat="c in widgetData track by $index">
+                        <td ng-repeat="t in c track by $index">{{t}}</td>
+                    </tr>
+                </table>
+                <ul class="pagination">
+                    <li><a href="javascript:void(0);" ng-click="goPage(p)" ng-class="{true:active,false:''}[p==curPage]"   ng-repeat="p in pages track by $index">第{{p}}页</a></li>
+                </ul>
+
+
+            </div>
+
             <div ng-switch-default>
                 <div ng-repeat="widget in row.widgets track by $index">
                     <dashboard-widget ng-if="widget.show"></dashboard-widget>
                     <div ng-if="!widget.show && widget.hasRole != false" class="col-md-{{widget.width}}" style="height: 50px;">
                         <i class="fa fa-spinner fa-spin"></i> {{"COMMON.LOADING" | translate}}
                     </div>
+
                     <div ng-if="widget.hasRole == false" class="col-md-{{widget.width}}">
                         <div class="box box-solid">
                             <div class="box-header">
@@ -52,12 +86,14 @@
                             </div>
                             <div class="box-body" ng-style="{height:widget.height?widget:300+'px'}">
                                 {{'ADMIN.CONTACT_ADMIN' | translate}}：<br>
+
                                 <ul>
                                     <li ng-repeat="ri in widget.roleInfo"> {{ri.type | translate}}：{{ri.name}}</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </ng-switch>

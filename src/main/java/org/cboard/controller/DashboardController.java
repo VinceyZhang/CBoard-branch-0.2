@@ -105,9 +105,14 @@ public class DashboardController {
                                                     @RequestParam(name = "datasetId", required = false) Long datasetId,
                                                     @RequestParam(name = "params", required = false) String params,
                                                     @RequestParam(name = "pagesParams", required = false) String pagesParams) {
+        Map<String, String> strParams = null;
+        if (query != null) {
 
-        Map<String, String> strParams = SqlTools.appendParams(query, params);
-        DataProviderResult result=  dataManagerService.getData(datasourceId, strParams, pagesParams,datasetId);
+
+            JSONObject queryO = JSONObject.parseObject(query);
+            strParams = Maps.transformValues(queryO, Functions.toStringFunction());
+        }
+        DataProviderResult result = dataManagerService.getData(datasourceId, strParams,params, pagesParams, datasetId);
 
         return result;
     }
@@ -244,6 +249,58 @@ public class DashboardController {
     public ViewDashboardBoard getBoardData(@RequestParam(name = "id") String id) {
         if (id.matches("\\d+")) {
             return boardService.getBoardData(Long.parseLong(id));
+        } else {
+
+            id = "{" + id + "}";
+            JSONObject jb = JSON.parseObject(id);
+            String sql = jb.getString("sql");
+            String categoryName = jb.getString("category_name");
+            String userId = jb.getString("user_id");
+
+            //保存Dateset的data字段
+            JSONObject jsData = new JSONObject();
+            jsData.put("datasource", 3);
+            jsData.put("expressions", new JSONObject[0]);
+            jsData.put("interval", "10");
+            JSONObject jbQuery = new JSONObject();
+            jbQuery.put("sql", sql);
+            jsData.put("query", jbQuery);
+            //保存dataset里面data字段的query
+            JSONObject jsDataset = new JSONObject();
+            jsDataset.put("userId", userId);
+            String stData = jsData.toJSONString();
+            JSONObject dataset = new JSONObject();
+
+            dataset.put("categoryName", categoryName);
+            dataset.put("data", stData);
+            dataset.put("name", "new");
+
+            String stDataset = dataset.toJSONString();
+            datasetService.save(userId, stDataset);
+
+            JSONObject jbWidget = new JSONObject();
+            jbWidget.put("name", "new ");
+            jbWidget.put("data", "{\"config\":{\"chart_type\":\"pie\",\"filters\":[],\"groups\":[],\"keys\":[{\"col\":\"c\",\"type\":\"eq\",\"values\":[]}],\"selects\":[],\"values\":[{\"cols\":[{\"aggregate_type\":\"sum\",\"col\":\"d\"}],\"name\":\"\"}]},\"datasetId\":2}");
+            jbWidget.put("categoryName", "new");
+            widgetService.save(userId, jbWidget.toJSONString());
+
+            JSONObject jbBoard = new JSONObject();
+            jbBoard.put("name", "new");
+            jbBoard.put("categoryId", 2);
+            jbBoard.put("layout", "{\"rows\":[{\"height\":\"500\",\"type\":\"widget\",\"widgets\":[{\"name\":\"new\",\"widgetId\":9,\"width\":\"3\"},{\"name\":\"new\",\"widgetId\":9,\"width\":\"3\"},{\"name\":\"new\",\"widgetId\":9,\"width\":\"3\"},{\"name\":\"new\",\"widgetId\":9,\"width\":\"3\"}]}]}");
+            boardService.save(userId, jbBoard.toJSONString());
+
+
+            return boardService.getBoardData(Long.parseLong("5"));
+        }
+
+    }
+
+
+    @RequestMapping(value = "/getBoardDataByType")
+    public ViewDashboardBoard getBoardDataByType(@RequestParam(name = "id") String id) {
+        if (id.matches("\\d+")) {
+            return boardService.getBoardDataByType(Long.parseLong(id));
         } else {
 
             id = "{" + id + "}";

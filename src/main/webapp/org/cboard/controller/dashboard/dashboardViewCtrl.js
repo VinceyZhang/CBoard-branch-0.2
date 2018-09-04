@@ -5,6 +5,40 @@
 cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $stateParams, $http, ModalUtils, chartService, $interval, $uibModal, dataService) {
 
     $scope.loading = true;
+    $scope.params = [];
+    $scope.colParams = [];
+
+    $scope.clickSearch = function () {
+        $scope.load();
+    }
+
+    $scope.goPage = function (p) {
+        $scope.curPage = p;
+        $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
+        $scope.load();
+    };
+
+    $scope.initPages = function (widgetData) {
+        var curPage = widgetData.curPage == null ? 1 : widgetData.curPage;
+        var totalPage = widgetData.totalPage;
+        var begin = 1;
+        var end = 0;
+        $scope.pages = [];
+
+
+        if (curPage < 10) {
+            begin = 1;
+            end = curPage + 5 >= totalPage ? totalPage : 10;
+        } else {
+            begin = curPage - 4;
+            end = curPage + 5 >= totalPage ? totalPage : curPage + 5;
+        }
+
+
+        for (var i = begin; i <= end; i++) {
+            $scope.pages.push(i);
+        }
+    }
 
     $http.get("dashboard/getDatasetList.do").success(function (response) {
         $scope.datasetList = response;
@@ -44,17 +78,22 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
             $interval.cancel(e);
         });
         $scope.intervals = [];
+
         $http.get("dashboard/getBoardData.do?id=" + $stateParams.id).success(function (response) {
             $scope.loading = false;
             $scope.board = response;
             var queries = [];
-
+            var addr = "dashboard/getCachedData.do";
+            if ($scope.board.type == 1) {
+                addr = "dashboard/getCachedDataByParams.do";
+            }
             _.each($scope.board.layout.rows, function (row) {
                 _.each(row.widgets, function (widget) {
                     if (!_.isUndefined(widget.hasRole) && !widget.hasRole) {
                         return;
                     }
                     var w = widget.widget.data;
+                    $scope.params = w.config.params;
                     var q;
                     for (var i = 0; i < queries.length; i++) {
                         if (queries[i].k == angular.toJson({d: w.datasource, q: w.query, s: w.datasetId})) {
@@ -97,15 +136,32 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
                 });
             });
 
+
+            var cps = $scope.colParams;
+            var cols = $scope.params;
+            var ps = {};
+            for (var i in cps) {
+                if (cps[i] != null && cps[i] != "") {
+                    ps[cols[i]] = cps[i];
+                }
+            }
+            if (ps != null) {
+                ps = angular.toJson(ps);
+            }
+
+
             _.each(queries, function (q) {
-                $http.post("dashboard/getCachedData.do", {
+                $http.post(addr, {
                     datasourceId: q.datasource,
                     query: angular.toJson(q.query),
                     datasetId: q.datasetId,
-                    reload: reload
+                    reload: reload,
+                    params: ps,
+                    pagesParams:angular.toJson($scope.pagesParams)
                 }).success(function (response) {
                     _.each(q.widgets, function (w) {
                         w.widget.queryData = response.data;
+                        $scope.initPages(response);
                         buildRender(w);
                         w.show = true;
                     });
@@ -172,11 +228,12 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
                     return e.id == dsId;
                 });
                 $scope.intervals.push($interval(function () {
-                    $http.post("dashboard/getCachedData.do", {
+                    $http.post(addr, {
                         datasetId: ds.id,
                     }).success(function (response) {
                         _.each($scope.realtimeDataset[dsId], function (w) {
                             w.widget.queryData = response.data;
+                            $scope.initPages(response);
                             try {
                                 chartService.realTimeRender(w.realTimeTicket, filterData(w.widget.id, w.widget.queryData), w.widget.data.config);
                                 if (w.modalRealTimeTicket) {

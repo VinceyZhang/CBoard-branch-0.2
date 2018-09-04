@@ -57,11 +57,25 @@
                 <span>{{'SIDEBAR.MY_DATA'|translate}}</span>
                 <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
             </a>
+
             <ul class="treeview-menu">
-                <li ui-sref-active="active" ng-if="isShowMenu('config.board')">
-                    <a ui-sref="config.dataManagerBoardView"><i class="fa fa-puzzle-piece"></i>{{'SIDEBAR.DATA_MANAGER_BOARD_VIEW'|translate}}</a>
+                <li ui-sref-active="active" ng-repeat="c in categoryList">
+                    <a>
+                        <i class="fa fa-folder"></i>
+                        {{c.name}}
+                        <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li ui-sref-active="active" ng-repeat="b in boardList | filter:{userId:user.userId}">
+                            <a ui-sref="mine.view({id:b.id})"><i class="fa fa-dashboard"></i>{{b.name}}</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
+
+
         </li>
         <!-- Config -->
         <li class="treeview" ui-sref-active="active" ng-if="isShowMenu('config')">

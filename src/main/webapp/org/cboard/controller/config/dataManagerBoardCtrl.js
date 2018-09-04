@@ -112,7 +112,8 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
 
     $scope.newBoard = function () {
         $scope.optFlag = 'new';
-        $scope.curBoard = {layout: {rows: []}};
+        $scope.curBoard = {layout: {rows: []},board_type:1};
+
     };
 
     $scope.editBoard = function (board) {
@@ -155,8 +156,11 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
         w.name = '图表名称';
         w.width = 12;
         w.widgetId = $scope.widgetList[0].id;
+        w.params=$scope.widgetList[0].data.config.params;
         row.widgets.push(w);
     };
+
+
 
     $scope.addRow = function () {
         $scope.curBoard.layout.rows.push({type: 'widget', widgets: []});

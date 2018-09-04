@@ -154,7 +154,7 @@
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label>{{'CONFIG.DASHBOARD.WIDGET'|translate}}</label>
-                                                                        <ui-select ng-model="widget.widgetId" on-select="widget.name = $item.name">
+                                                                        <ui-select ng-model="widget.widgetId" on-select="widget.name = $item.name;widget.params=$item.data.config.params">
                                                                             <ui-select-match>
                                                                                 {{$select.selected.name}} ({{$select.selected.dataset}})
                                                                             </ui-select-match>

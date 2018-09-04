@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -212,15 +213,40 @@ public class DataManagerService extends DataProviderService {
     }
 
 
-    public DataProviderResult getData(Long datasourceId, Map<String, String> query, String pagesParams, Long datasetId) {
+    public DataProviderResult getData(Long datasourceId, Map<String, String> query, String params, String pagesParams, Long datasetId) {
 
         PageHelper pageHelper = new PageHelper();
         pageHelper.setCurPage(1);
         pageHelper.setPageSize(10);
         if (pagesParams != null) {
             JSONObject pgObject = JSONObject.parseObject(pagesParams);
-            pageHelper.setCurPage(pgObject.getInteger("curPage")==null?1:pgObject.getInteger("curPage"));
-            pageHelper.setPageSize(pgObject.getInteger("pageSize")==null?2:pgObject.getInteger("pageSize"));
+            pageHelper.setCurPage(pgObject.getInteger("curPage") == null ? 1 : pgObject.getInteger("curPage"));
+            pageHelper.setPageSize(pgObject.getInteger("pageSize") == null ? 2 : pgObject.getInteger("pageSize"));
+        }
+
+        if (datasetId != null) {
+            Dataset dataset = getDataset(datasetId);
+            datasourceId = dataset.getDatasourceId();
+            query = dataset.getQuery();
+        }
+        Map<String, String> paramsMap = null;
+        if (params != null) {
+            JSONObject paObject = JSONObject.parseObject(params);
+            paramsMap = Maps.transformValues(paObject, Functions.toStringFunction());
+
+            StringBuffer sql = new StringBuffer(query.get("sql"));
+            if (paramsMap != null && paramsMap.size() > 0) {
+                sql.append(" where 1=1 ");
+                Iterator<Map.Entry<String, String>> iterator = paramsMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, String> entry = iterator.next();
+                    sql.append(" and ");
+                    sql.append(entry.getKey() + " = \'" + entry.getValue() + "\' ");
+
+                }
+            }
+            query = new HashMap<String, String>();
+            query.put("sql", sql.toString());
         }
 
         StringBuffer sbSql = new StringBuffer(query.get("sql"));
@@ -241,7 +267,7 @@ public class DataManagerService extends DataProviderService {
         Map<String, String> q = new HashMap<String, String>();
         q.put("sql", sbSql.toString());
         pageHelper.setTotalPage(resultCount);
-        DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, datasetId);
+        DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, null);
         result.setTotalPage(pageHelper.getTotalPage());
         result.setPageSize(pageHelper.getPageSize());
         result.setCurPage(pageHelper.getCurPage());

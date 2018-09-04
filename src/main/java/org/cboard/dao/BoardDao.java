@@ -24,6 +24,9 @@ public interface BoardDao {
 
     DashboardBoard getBoard(Long id);
 
+    DashboardBoard getBoardDataByType(Long id);
+
+
     long checkBoardRole(String userId, Long boardId);
 
     List<DashboardBoard> getBoardListByType(Map<String, Object> paramMap);

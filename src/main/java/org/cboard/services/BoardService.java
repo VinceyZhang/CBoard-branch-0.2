@@ -67,6 +67,7 @@ public class BoardService {
         board.setName(jsonObject.getString("name"));
         board.setCategoryId(jsonObject.getLong("categoryId"));
         board.setLayout(jsonObject.getString("layout"));
+        board.setType(jsonObject.getInteger("board_type"));
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_id", board.getUserId());
@@ -116,5 +117,31 @@ public class BoardService {
         paramMap.put("user_id", board.getUserId());
         paramMap.put("board_type", board.getType());
         return boardDao.getBoardListByType(paramMap);
+    }
+
+    public ViewDashboardBoard getBoardDataByType(long id) {
+        DashboardBoard board = boardDao.getBoard(id);
+        JSONObject layout = JSONObject.parseObject(board.getLayout());
+        JSONArray rows = layout.getJSONArray("rows");
+        for (Object row : rows) {
+            JSONObject o = (JSONObject) row;
+            if ("param".equals(o.getString("type"))) {
+                continue;
+            }
+            JSONArray widgets = o.getJSONArray("widgets");
+            for (Object w : widgets) {
+                JSONObject ww = (JSONObject) w;
+                Long widgetId = ww.getLong("widgetId");
+                DashboardWidget widget = widgetDao.getWidget(widgetId);
+                JSONObject dataJson = JSONObject.parseObject(widget.getData());
+                //DataProviderResult data = dataProviderService.getData(dataJson.getLong("datasource"), Maps.transformValues(dataJson.getJSONObject("query"), Functions.toStringFunction()));
+                JSONObject widgetJson = (JSONObject) JSONObject.toJSON(new ViewDashboardWidget(widget));
+                //widgetJson.put("queryData", data.getData());
+                ww.put("widget", widgetJson);
+            }
+        }
+        ViewDashboardBoard view = new ViewDashboardBoard(board);
+        view.setLayout(layout);
+        return view;
     }
 }
