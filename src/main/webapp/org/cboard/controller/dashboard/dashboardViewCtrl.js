@@ -9,6 +9,8 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
     $scope.colParams = [];
 
     $scope.clickSearch = function () {
+        $scope.curPage = 1;
+        $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
         $scope.load();
     }
 
@@ -161,6 +163,7 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
                 }).success(function (response) {
                     _.each(q.widgets, function (w) {
                         w.widget.queryData = response.data;
+                        $scope.totalPage=response.totalPage;
                         $scope.initPages(response);
                         buildRender(w);
                         w.show = true;

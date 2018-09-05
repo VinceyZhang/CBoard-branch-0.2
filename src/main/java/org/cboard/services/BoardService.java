@@ -67,7 +67,7 @@ public class BoardService {
         board.setName(jsonObject.getString("name"));
         board.setCategoryId(jsonObject.getLong("categoryId"));
         board.setLayout(jsonObject.getString("layout"));
-        board.setType(jsonObject.getInteger("board_type"));
+        board.setType(jsonObject.getInteger("type"));
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_id", board.getUserId());

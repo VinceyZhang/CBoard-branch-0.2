@@ -17,7 +17,8 @@
                board_name      AS NAME,
                layout_json     AS layout,
                a.category_id   AS categoryId,
-               b.category_name AS categoryName
+               b.category_name AS categoryName,
+               a.board_type    AS type
           FROM dashboard_board a
           LEFT JOIN dashboard_category b ON a.category_id = b.category_id
          WHERE #{user_id} = '${admin_user_id}' AND a.user_id = #{user_id} AND a.board_type=#{board_type} OR a.board_id IN (
@@ -35,7 +36,8 @@
                board_name      AS NAME,
                layout_json     AS layout,
                a.category_id   AS categoryId,
-               b.category_name AS categoryName
+               b.category_name AS categoryName,
+               a.board_type    AS type
           FROM dashboard_board a
           LEFT JOIN dashboard_category b ON a.category_id = b.category_id
          WHERE #{0} = '${admin_user_id}' OR a.user_id = #{0} OR a.board_id IN (

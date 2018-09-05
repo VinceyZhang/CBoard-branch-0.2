@@ -112,7 +112,7 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
 
     $scope.newBoard = function () {
         $scope.optFlag = 'new';
-        $scope.curBoard = {layout: {rows: []},board_type:1};
+        $scope.curBoard = {layout: {rows: []},type:1};
 
     };
 

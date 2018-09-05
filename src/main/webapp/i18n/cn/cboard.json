@@ -32,7 +32,7 @@
     "USER_ADMIN": "用户管理",
     "RES_ADMIN": "资源管理",
     "DATA_MANAGER":"数据集管理",
-    "DATA_MANAGER_WIDGET":"图表设计",
+    "DATA_MANAGER_WIDGET":"表格设计",
     "DATA_MANAGER_BOARD":"看板设计",
     "DATA_MANAGER_DIR":"数据管理",
     "DATA_VIEW":"可视化配置",
