@@ -80,64 +80,48 @@ public class JdbcDataProvider extends DataProvider {
         return list.toArray(new String[][]{});
     }
 
-//    public String[][] getDataByParams(Map<String, String> dataSource, Map<String, String> query, Map<String, String> params) throws Exception {
-//
-//        Connection con = getConnection(dataSource);
-//
-//        StringBuffer sql = new StringBuffer(query.get(SQL));
-//        PreparedStatement ps = null;
-//        ResultSet rs = null;
-//        List<String[]> list = null;
-//
-//        try {
-//
-//            Iterator<Map.Entry<String, String>> iterator = params.entrySet().iterator();
-//            while (iterator.hasNext()) {
-//                Map.Entry<String, String> entry = iterator.next();
-//                sql. (" and ");
-//                sql.params(entry.getKey() + " = \'" + entry.getValue() + "\' ");
-//            }
-//
-//            ps = con.prepareStatement(sql);
-//            rs = ps.executeQuery();
-//            ResultSetMetaData metaData = rs.getMetaData();
-//            int columnCount = metaData.getColumnCount();
-//            list = new LinkedList<>();
-//            String[] row = new String[columnCount];
-//            for (int i = 0; i < columnCount; i++) {
-//                row[i] = metaData.getColumnLabel(i + 1);
-//            }
-//            list.add(row);
-//            while (rs.next()) {
-//                row = new String[columnCount];
-//                for (int j = 0; j < columnCount; j++) {
-//                    row[j] = rs.getString(j + 1);
-//                }
-//                list.add(row);
-//            }
-//        } finally {
-//            if (rs != null) {
-//                try {
-//                    rs.close();
-//                } catch (Exception e) {
-//                }
-//            }
-//            if (ps != null) {
-//                try {
-//                    ps.close();
-//                } catch (Exception e) {
-//                }
-//            }
-//            if (con != null) {
-//                try {
-//                    con.close();
-//                } catch (Exception e) {
-//                }
-//            }
-//        }
-//
-//        return list.toArray(new String[][]{});
-//    }
+    public int insertData(Map<String, String> dataSource, List<String> query) throws Exception {
+
+        Connection con = getConnection(dataSource);
+
+
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<String[]> list = null;
+        int re = 0;
+        try {
+            for (String sql : query) {
+                ps = con.prepareStatement(sql);
+                re = ps.executeUpdate();
+                if (re == 0) {
+                    return re;
+                }
+            }
+
+
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (Exception e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (Exception e) {
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        return re;
+    }
 
     @Override
     public int resultCount(Map<String, String> dataSource, Map<String, String> query) throws Exception {

@@ -11,7 +11,7 @@ import java.util.Map;
  */
 // uncomment to active MyDataProvider example
 //@ProviderName(name = "MyDataProvider")
-public class MyDataProvider  extends DataProvider {
+public abstract class MyDataProvider extends DataProvider {
 
     // **数据源管理** 页面 创建数据源的时候需要配置的参数
     @DatasourceParameter(label = "数据源参数", type = DatasourceParameter.Type.Input, order = 1)
@@ -28,9 +28,8 @@ public class MyDataProvider  extends DataProvider {
     }
 
     /**
-     *
      * @param dataSource 参数Map
-     * @param query 参数Map
+     * @param query      参数Map
      * @return
      * @throws Exception
      */

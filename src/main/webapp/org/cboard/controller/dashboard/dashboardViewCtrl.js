@@ -8,6 +8,21 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
     $scope.params = [];
     $scope.colParams = [];
 
+
+    $scope.importData = function () {
+        $("#importData").ajaxSubmit({
+            "url": "/dashboard/importData.do",
+            "success": function (res) {
+                if (res.status == 1) {
+                    alert("导入成功！");
+                    $("#importData").resetForm();
+                } else {
+                    alert(res.msg);
+                }
+            }
+        });
+    }
+
     $scope.clickSearch = function () {
         $scope.curPage = 1;
         $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
@@ -88,6 +103,12 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
             var addr = "dashboard/getCachedData.do";
             if ($scope.board.type == 1) {
                 addr = "dashboard/getCachedDataByParams.do";
+                //判断是否为数据管理的widget
+
+                $scope.isDataManager = true;
+
+            } else {
+                $scope.isDataManager = false;
             }
             _.each($scope.board.layout.rows, function (row) {
                 _.each(row.widgets, function (widget) {
@@ -96,6 +117,8 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
                     }
                     var w = widget.widget.data;
                     $scope.params = w.config.params;
+
+
                     var q;
                     for (var i = 0; i < queries.length; i++) {
                         if (queries[i].k == angular.toJson({d: w.datasource, q: w.query, s: w.datasetId})) {
@@ -159,11 +182,11 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
                     datasetId: q.datasetId,
                     reload: reload,
                     params: ps,
-                    pagesParams:angular.toJson($scope.pagesParams)
+                    pagesParams: angular.toJson($scope.pagesParams)
                 }).success(function (response) {
                     _.each(q.widgets, function (w) {
                         w.widget.queryData = response.data;
-                        $scope.totalPage=response.totalPage;
+                        $scope.totalPage = response.totalPage;
                         $scope.initPages(response);
                         buildRender(w);
                         w.show = true;

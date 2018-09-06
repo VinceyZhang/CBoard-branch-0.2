@@ -11,12 +11,18 @@ import org.cboard.dataprovider.DataProviderViewManager;
 import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
+import org.cboard.util.HandleExcel;
+import org.cboard.util.PathTool;
 import org.cboard.util.SqlTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +118,7 @@ public class DashboardController {
             JSONObject queryO = JSONObject.parseObject(query);
             strParams = Maps.transformValues(queryO, Functions.toStringFunction());
         }
-        DataProviderResult result = dataManagerService.getData(datasourceId, strParams,params, pagesParams, datasetId);
+        DataProviderResult result = dataManagerService.getData(datasourceId, strParams, params, pagesParams, datasetId);
 
         return result;
     }
@@ -353,6 +359,14 @@ public class DashboardController {
 
         String userid = authenticationService.getCurrentUser().getUserId();
         return categoryService.save(userid, json);
+    }
+
+    @RequestMapping(value = "/importData")
+    public ServiceStatus importData(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
+                                    @RequestParam(name = "datasetId", required = false) Long datasetId,
+                                    @RequestParam(value = "file", required = false) MultipartFile file) {
+        return dataManagerService.importData(datasourceId,datasetId,file);
+
     }
 
     @RequestMapping(value = "/getCategoryList")
