@@ -33,7 +33,7 @@ public class OffLineAnalysisController {
     private AuthenticationService authenticationService;
 
     @RequestMapping(value = "/saveNewAnalysis")
-    public ServiceStatus saveAnalysisParamsInfo(@RequestParam(name = "json") String json) {
+    public ServiceStatus saveNewAnalysis(@RequestParam(name = "json") String json) {
         String userId = authenticationService.getCurrentUser().getUserId();
         return offLineAnalysisService.saveAnalysisParamInfo(userId,json);
     }

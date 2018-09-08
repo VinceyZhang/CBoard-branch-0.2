@@ -47,7 +47,8 @@
     <insert id="save" parameterType="org.cboard.pojo.DashboardDataset">
         <![CDATA[
 
-        INSERT INTO dashboard_dataset(user_id,dataset_name,data_json,category_name) VALUES (#{userId},#{name},#{data},#{categoryName})
+        INSERT INTO dashboard_dataset(user_id,dataset_name,data_json,category_name,dataset_type,config_json) VALUES
+        (#{userId},#{name},#{data},#{categoryName},#{type},#{config})
 
         ]]>
     </insert>

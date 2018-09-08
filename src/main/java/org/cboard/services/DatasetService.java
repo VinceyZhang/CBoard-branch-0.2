@@ -28,6 +28,8 @@ public class DatasetService {
         dataset.setName(jsonObject.getString("name"));
         dataset.setData(jsonObject.getString("data"));
         dataset.setCategoryName(jsonObject.getString("categoryName"));
+        dataset.setType(0);
+
         if (StringUtils.isEmpty(dataset.getCategoryName())) {
             dataset.setCategoryName("默认分类");
         }

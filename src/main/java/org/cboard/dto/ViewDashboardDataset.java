@@ -16,6 +16,7 @@ public class ViewDashboardDataset {
     private String name;
     private String categoryName;
     private Integer type;
+    private Map<String,Object> config;
     private Map<String, Object> data;
 
 
@@ -34,6 +35,15 @@ public class ViewDashboardDataset {
         this.categoryName = dataManager.getCategoryName();
         this.data = JSONObject.parseObject(dataManager.getData());
         this.type = dataManager.getType();
+        this.config=JSONObject.parseObject(dataManager.getConfig());
+    }
+
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
     }
 
     public Integer getType() {

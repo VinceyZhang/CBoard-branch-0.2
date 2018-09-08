@@ -11,7 +11,15 @@ public class DashboardDataset {
     private String categoryName;
     private String data;
     private Integer type;
+    private String config;
 
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config;
+    }
 
     public Integer getType() {
         return type;

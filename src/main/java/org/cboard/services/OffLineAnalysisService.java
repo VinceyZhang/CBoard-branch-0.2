@@ -38,15 +38,15 @@ public class OffLineAnalysisService {
         try {
             JSONObject jsonObject = JSONObject.parseObject(json);
             DashboardDataset dataset = new DashboardDataset();
-            JSONObject analysisInfo=JSONObject.parseObject(dataset.getData());
 
+            JSONObject config=JSONObject.parseObject(jsonObject.getString("config"));
 
             HttpPost request = new HttpPost("http://192.168.188.158:9016/start/excute");
             request.setHeader("Accept", "application/json");
             request.setHeader("Content-Type", "application/json");
 
 
-            Map<String, String> map = Maps.transformValues(analysisInfo, Functions.toStringFunction());
+            Map<String, String> map = Maps.transformValues(config, Functions.toStringFunction());
 //            map.put("taskId", "test_test");
 //            map.put("sqlCount", "select count(*) from company_info");
 //            map.put("sqlSelect", "select * from company_info");
@@ -55,30 +55,30 @@ public class OffLineAnalysisService {
 //            map.put("dbResultName", "test");
 //            map.put("tableResult", "company_info");
 
-            String paramsMap = JSONUtils.toJSONString(map);
-            StringEntity entityForm = new StringEntity(paramsMap);
-            entityForm.setContentType("application/json");
-            entityForm.setContentEncoding("UTF-8");
-
-            request.setEntity(entityForm);
-            HttpResponse response = client.execute(request);
-            HttpEntity entity = response.getEntity();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
-            String buffer = "";
-            StringBuffer sb = new StringBuffer();
-            while ((buffer = reader.readLine()) != null) {
-                sb.append(buffer);
-            }
-            reader.close();
-            request.releaseConnection();
-            System.out.println("entity:" + sb.toString());
-
-
+//            String paramsMap = JSONUtils.toJSONString(map);
+//            StringEntity entityForm = new StringEntity(paramsMap);
+//            entityForm.setContentType("application/json");
+//            entityForm.setContentEncoding("UTF-8");
+//
+//            request.setEntity(entityForm);
+//            HttpResponse response = client.execute(request);
+//            HttpEntity entity = response.getEntity();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+//            String buffer = "";
+//            StringBuffer sb = new StringBuffer();
+//            while ((buffer = reader.readLine()) != null) {
+//                sb.append(buffer);
+//            }
+//            reader.close();
+//            request.releaseConnection();
+//            System.out.println("entity:" + sb.toString());
 
             dataset.setUserId(userId);
             dataset.setName(jsonObject.getString("name"));
             dataset.setData(jsonObject.getString("data"));
             dataset.setCategoryName(jsonObject.getString("categoryName"));
+            dataset.setConfig(jsonObject.getString("config"));
+            dataset.setType(1);
             if (StringUtils.isEmpty(dataset.getCategoryName())) {
                 dataset.setCategoryName("默认分类");
             }
@@ -88,7 +88,6 @@ public class OffLineAnalysisService {
             paramMap.put("category_name", dataset.getCategoryName());
             if (datasetDao.countExistDatasetName(paramMap) <= 0) {
                 datasetDao.save(dataset);
-                // return new ServiceStatus(ServiceStatus.Status.Success, "success");
             } else {
                 return new ServiceStatus(ServiceStatus.Status.Fail, "Duplicated name");
             }
