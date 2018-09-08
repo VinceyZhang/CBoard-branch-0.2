@@ -35,6 +35,9 @@ public class MenuService {
         menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_DIR", "config.dataManagerDir"));
         menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_BOARD_VIEW", "config.dataManagerBoardView"));
         menuList.add(new DashboardMenu(13, 1, "SIDEBAR.DATA_VIEW", "config.data_view"));
+        menuList.add(new DashboardMenu(14, 1, "SIDEBAR.OFF_LINE_ANALYSIS", "config.offLineAnalysis"));
+        menuList.add(new DashboardMenu(15, 14, "SIDEBAR.OFF_LINE_WIDGET", "config.offLineAnalysisWidget"));
+        menuList.add(new DashboardMenu(16, 14, "SIDEBAR.OFF_LINE_BOARD", "config.offLineAnalysisBoard"));
     }
 
     public List<DashboardMenu> getMenuList() {

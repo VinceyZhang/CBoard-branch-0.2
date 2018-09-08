@@ -15,6 +15,7 @@ public class ViewDashboardDataset {
     private String userId;
     private String name;
     private String categoryName;
+    private Integer type;
     private Map<String, Object> data;
 
 
@@ -32,6 +33,15 @@ public class ViewDashboardDataset {
         this.name = dataManager.getName();
         this.categoryName = dataManager.getCategoryName();
         this.data = JSONObject.parseObject(dataManager.getData());
+        this.type = dataManager.getType();
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Long getId() {

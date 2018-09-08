@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,4 +72,7 @@ public class DatasetService {
         return new ServiceStatus(ServiceStatus.Status.Success, "success");
     }
 
+    public List<DashboardDataset> getDatasetListByType(String userId, int type) {
+        return datasetDao.getDatasetListByType(userId, type);
+    }
 }

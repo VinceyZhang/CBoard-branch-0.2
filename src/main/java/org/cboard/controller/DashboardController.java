@@ -16,6 +16,7 @@ import org.cboard.util.PathTool;
 import org.cboard.util.SqlTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,7 +77,7 @@ public class DashboardController {
     @Autowired
     private DataManagerService dataManagerService;
 
-    @RequestMapping(value = "/test")
+    @RequestMapping(value = "/test",method= RequestMethod.GET)
     public ServiceStatus test(@RequestParam(name = "datasource", required = false) String datasource, @RequestParam(name = "query", required = false) String query) {
         JSONObject queryO = JSONObject.parseObject(query);
         JSONObject datasourceO = JSONObject.parseObject(datasource);

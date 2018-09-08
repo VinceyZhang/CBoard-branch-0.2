@@ -16,6 +16,8 @@ public interface DatasetDao {
 
     List<DashboardDataset> getDatasetList(String userId);
 
+    List<DashboardDataset> getDatasetListByType(String userId,Integer id);
+
     int save(DashboardDataset dataset);
 
     long countExistDatasetName(Map<String, Object> map);

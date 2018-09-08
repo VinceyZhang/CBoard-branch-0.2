@@ -74,6 +74,10 @@ angular.module('cBoard').config(['$stateProvider', function ($stateProvider) {
         url: '/dataManagerBoard',
         templateUrl: 'org/cboard/view/config/dataManagerBoard.html',
         controller: 'dataManagerBoardCtrl'
+    }).state('config.offLineAnalysis', {
+        url: '/offLineAnalysis',
+        templateUrl: 'org/cboard/view/config/offLineAnalysis.html',
+        controller: 'offLineAnalysisCtrl'
     }).state('config.dataManagerBoardView', {
         url: '/{id}',
         params: {id: null},

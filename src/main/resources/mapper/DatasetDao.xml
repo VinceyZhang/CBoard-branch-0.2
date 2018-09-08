@@ -14,7 +14,24 @@
               data_json     AS data,
               category_name AS categoryName
          FROM dashboard_dataset
-               WHERE #{0} = '${admin_user_id}' OR user_id = #{0} OR dataset_id IN (
+               WHERE #{0} = '${admin_user_id}' AND dataset_type=0 AND user_id = #{0} OR dataset_id IN (
+             SELECT res_id
+               FROM dashboard_user_role ur
+               LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
+              WHERE ur.user_id = #{0} AND rr.res_type = 'dataset'
+          )
+        ORDER BY dataset_name
+    </select>
+
+    <select id="getDatasetListByType" resultType="org.cboard.pojo.DashboardDataset">
+       SELECT
+              dataset_id    AS id,
+              user_id       AS userId,
+              dataset_name  AS name,
+              data_json     AS data,
+              category_name AS categoryName
+         FROM dashboard_dataset
+               WHERE #{0} = '${admin_user_id}' AND dataset_type=#{1} AND user_id = #{0} OR dataset_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
@@ -29,27 +46,31 @@
 
     <insert id="save" parameterType="org.cboard.pojo.DashboardDataset">
         <![CDATA[
+
         INSERT INTO dashboard_dataset(user_id,dataset_name,data_json,category_name) VALUES (#{userId},#{name},#{data},#{categoryName})
+
         ]]>
     </insert>
 
     <update id="update" parameterType="org.cboard.pojo.DashboardDataset">
         <![CDATA[
+
         UPDATE dashboard_dataset SET dataset_name = #{name},data_json = #{data},category_name = #{categoryName} where dataset_id = #{id}
+
         ]]>
     </update>
 
     <select id="countExistDatasetName" resultType="java.lang.Long">
         SELECT count(1)
-          FROM dashboard_dataset
-         WHERE 1=1
-        <if test="dataset_id != null" >
-          <![CDATA[
+        FROM dashboard_dataset
+        WHERE 1=1
+        <if test="dataset_id != null">
+            <![CDATA[
             AND dataset_id <> #{dataset_id}
           ]]>
         </if>
-            AND dataset_name = #{dataset_name}
-            AND category_name = #{category_name}
+        AND dataset_name = #{dataset_name}
+        AND category_name = #{category_name}
     </select>
 
     <delete id="delete">
