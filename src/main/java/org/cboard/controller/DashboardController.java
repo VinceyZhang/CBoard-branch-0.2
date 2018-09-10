@@ -77,7 +77,7 @@ public class DashboardController {
     @Autowired
     private DataManagerService dataManagerService;
 
-    @RequestMapping(value = "/test",method= RequestMethod.GET)
+    @RequestMapping(value = "/test")
     public ServiceStatus test(@RequestParam(name = "datasource", required = false) String datasource, @RequestParam(name = "query", required = false) String query) {
         JSONObject queryO = JSONObject.parseObject(query);
         JSONObject datasourceO = JSONObject.parseObject(datasource);

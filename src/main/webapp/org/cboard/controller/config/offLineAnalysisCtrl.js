@@ -10,9 +10,8 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
     $scope.alerts = [];
     $scope.verify = {dsName: true};
 
-    $scope.curAnalysis = {};
-    $scope.curAnalysis.data = {};
-    $scope.curAnalysis.config = {};
+    $scope.curAnalysis = {data: {expressions: []}, config: {}};
+
     $scope.target = {};
     $scope.from = {};
 
@@ -47,8 +46,8 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
     $scope.newDs = function () {
         $scope.optFlag = 'new';
-        $scope.curDataset = {data: {expressions: []}};
-        $scope.curWidget = {};
+        $scope.curAnalysis = {data: {expressions: []}, config: {}};
+
         cleanPreview();
     };
 
@@ -66,15 +65,18 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         $scope.optFlag = 'edit';
         $scope.curDataset = angular.copy(ds);
         $scope.curDataset.name = $scope.curDataset.categoryName + '/' + $scope.curDataset.name;
-        $scope.curAnalysis
+        $scope.curAnalysis = angular.copy(ds);
         if (!$scope.curDataset.data.expressions) {
             $scope.curDataset.data.expressions = [];
         }
-        $scope.datasource = _.find($scope.datasourceList, function (ds) {
+        $scope.databaseSource = _.find($scope.datasourceList, function (ds) {
+            return ds.id == $scope.curDataset.data.datasource;
+        });
+        $scope.databaseResult = _.find($scope.datasourceList, function (ds) {
             return ds.id == $scope.curDataset.data.datasource;
         });
         $scope.curWidget.query = $scope.curDataset.data.query;
-        $scope.loadData();
+
     };
 
     $scope.deleteDs = function (ds) {
@@ -89,7 +91,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
     $scope.copyDs = function (ds) {
         var data = angular.copy(ds);
         data.name = data.name + "_copy";
-        $http.post("dashboard/saveNewDataset.do", {json: angular.toJson(data)}).success(function (serviceStatus) {
+        $http.post("offLineAnalysis/saveNewAnalysis.do", {json: angular.toJson(data)}).success(function (serviceStatus) {
             if (serviceStatus.status == '1') {
                 $scope.optFlag = 'none';
                 getDatasetList();
@@ -112,141 +114,129 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
     };
 
     $scope.save = function () {
-        $scope.datasource ? $scope.curDataset.data.datasource = $scope.datasource.id : null;
-        $scope.curDataset.data.query = $scope.curWidget.query;
+        //设置当前配置信息的datasource
+        $scope.datasource ? $scope.curAnalysis.data.datasource = $scope.datasource.id : null;
 
-
-        $scope.curAnalysis.data = {
-            "datasource": $scope.datasource.id,
-            "expressions": [],
-            "query": $scope.curWidget.query
-        };
-        $scope.curAnalysis.config = {
-            "sqlSelect": $scope.curWidget.query, "databaseSource": $scope.from.addr,
-            "databaseResult": $scope.target.addr, "dbResultName": $scope.target.db, "tableResult": $scope.target.table
+        if (!validate()) {
+            return;
         }
-
-
-    if (!validate()) {
-        return;
-    }
-    var ds = angular.copy($scope.curAnalysis);
-    var index = ds.name.lastIndexOf('/');
-    ds.categoryName = $scope.curAnalysis.name.substring(0, index).trim();
-    ds.name = $scope.curAnalysis.name.slice(index + 1).trim();
-    if (ds.categoryName == '') {
-        ds.categoryName = translate("COMMON.DEFAULT_CATEGORY");
-    }
-
-    if ($scope.optFlag == 'new') {
-        $http.post("offLineAnalysis/saveNewAnalysis.do", {json: angular.toJson($scope.curAnalysis)}).success(function (serviceStatus) {
-            if (serviceStatus.status == '1') {
-                $scope.optFlag = 'edit';
-                getCategoryList();
-                getDatasetList();
-                $scope.verify = {dsName: true};
-                ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
-            } else {
-                $scope.alerts = [{msg: serviceStatus.msg, type: 'danger'}];
-            }
-        });
-    } else {
-        $http.post(updateUrl, {json: angular.toJson(ds)}).success(function (serviceStatus) {
-            if (serviceStatus.status == '1') {
-                $scope.optFlag = 'edit';
-                getCategoryList();
-                getDatasetList();
-                $scope.verify = {dsName: true};
-                ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
-            } else {
-                $scope.alerts = [{msg: serviceStatus.msg, type: 'danger'}];
-            }
-        });
-    }
-
-};
-
-$scope.editExp = function (col) {
-    var selects = angular.copy($scope.widgetData[0]);
-    var aggregate = [
-        {name: 'sum', value: 'sum'},
-        {name: 'count', value: 'count'},
-        {name: 'avg', value: 'avg'},
-        {name: 'max', value: 'max'},
-        {name: 'min', value: 'min'}
-    ];
-    var ok;
-    var data = {expression: ''};
-    if (!col) {
-        ok = function (exp, alias) {
-            $scope.curDataset.data.expressions.push({
-                type: 'exp',
-                exp: data.expression,
-                alias: data.alias
+        var ds = angular.copy($scope.curAnalysis);
+        var index = ds.name.lastIndexOf('/');
+        ds.categoryName = $scope.curAnalysis.name.substring(0, index).trim();
+        ds.name = $scope.curAnalysis.name.slice(index + 1).trim();
+        if (ds.categoryName == '') {
+            ds.categoryName = translate("COMMON.DEFAULT_CATEGORY");
+        }
+        ds.config.sqlSelect = ds.data.query;
+        if ($scope.optFlag == 'new') {
+            $http.post("offLineAnalysis/saveNewAnalysis.do", {json: angular.toJson(ds)}).success(function (serviceStatus) {
+                if (serviceStatus.status == '1') {
+                    $scope.optFlag = 'edit';
+                    getCategoryList();
+                    getDatasetList();
+                    $scope.verify = {dsName: true};
+                    ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
+                } else {
+                    $scope.alerts = [{msg: serviceStatus.msg, type: 'danger'}];
+                }
+            });
+        } else {
+            $http.post(updateUrl, {json: angular.toJson(ds)}).success(function (serviceStatus) {
+                if (serviceStatus.status == '1') {
+                    $scope.optFlag = 'edit';
+                    getCategoryList();
+                    getDatasetList();
+                    $scope.verify = {dsName: true};
+                    ModalUtils.alert(translate("COMMON.SUCCESS"), "modal-success", "sm");
+                } else {
+                    $scope.alerts = [{msg: serviceStatus.msg, type: 'danger'}];
+                }
             });
         }
-    } else {
-        data.expression = col.exp;
-        data.alias = col.alias;
-        ok = function (data) {
-            col.exp = data.expression;
-            col.alias = data.alias;
-        }
-    }
 
-    $uibModal.open({
-        templateUrl: 'org/cboard/view/config/modal/exp.html',
-        windowTemplateUrl: 'org/cboard/view/util/modal/window.html',
-        backdrop: false,
-        controller: function ($scope, $uibModalInstance) {
-            $scope.data = data;
-            $scope.selects = selects;
-            $scope.aggregate = aggregate;
-            $scope.alerts = [];
-            $scope.close = function () {
-                $uibModalInstance.close();
-            };
-            $scope.addToken = function (str, agg) {
-                var tc = document.getElementById("expression_area");
-                var tclen = $scope.data.expression.length;
-                tc.focus();
-                var selectionIdx = 0;
-                if (typeof document.selection != "undefined") {
-                    document.selection.createRange().text = str;
-                    selectionIdx = str.length - 1;
-                }
-                else {
-                    var a = $scope.data.expression.substr(0, tc.selectionStart);
-                    var b = $scope.data.expression.substring(tc.selectionStart, tclen);
-                    $scope.data.expression = a + str;
-                    selectionIdx = $scope.data.expression.length - 1;
-                    $scope.data.expression += b;
-                }
-                if (!agg) {
-                    selectionIdx++;
-                }
-                tc.selectionStart = selectionIdx;
-                tc.selectionEnd = selectionIdx;
-            };
-            $scope.verify = function () {
-                $scope.alerts = [];
-                var v = verifyAggExpRegx($scope.data.expression);
-                $scope.alerts = [{
-                    msg: v.isValid ? translate("COMMON.SUCCESS") : v.msg,
-                    type: v.isValid ? 'success' : 'danger'
-                }];
-            };
-            $scope.ok = function () {
-                if (!$scope.data.alias) {
-                    ModalUtils.alert(translate('CONFIG.WIDGET.ALIAS') + translate('COMMON.NOT_EMPTY'), "modal-warning", "lg");
-                    return;
-                }
-                ok($scope.data);
-                $uibModalInstance.close();
-            };
+    };
+
+    $scope.editExp = function (col) {
+        var selects = angular.copy($scope.widgetData[0]);
+        var aggregate = [
+            {name: 'sum', value: 'sum'},
+            {name: 'count', value: 'count'},
+            {name: 'avg', value: 'avg'},
+            {name: 'max', value: 'max'},
+            {name: 'min', value: 'min'}
+        ];
+        var ok;
+        var data = {expression: ''};
+        if (!col) {
+            ok = function (exp, alias) {
+                $scope.curDataset.data.expressions.push({
+                    type: 'exp',
+                    exp: data.expression,
+                    alias: data.alias
+                });
+            }
+        } else {
+            data.expression = col.exp;
+            data.alias = col.alias;
+            ok = function (data) {
+                col.exp = data.expression;
+                col.alias = data.alias;
+            }
         }
-    });
-};
+
+        $uibModal.open({
+            templateUrl: 'org/cboard/view/config/modal/exp.html',
+            windowTemplateUrl: 'org/cboard/view/util/modal/window.html',
+            backdrop: false,
+            controller: function ($scope, $uibModalInstance) {
+                $scope.data = data;
+                $scope.selects = selects;
+                $scope.aggregate = aggregate;
+                $scope.alerts = [];
+                $scope.close = function () {
+                    $uibModalInstance.close();
+                };
+                $scope.addToken = function (str, agg) {
+                    var tc = document.getElementById("expression_area");
+                    var tclen = $scope.data.expression.length;
+                    tc.focus();
+                    var selectionIdx = 0;
+                    if (typeof document.selection != "undefined") {
+                        document.selection.createRange().text = str;
+                        selectionIdx = str.length - 1;
+                    }
+                    else {
+                        var a = $scope.data.expression.substr(0, tc.selectionStart);
+                        var b = $scope.data.expression.substring(tc.selectionStart, tclen);
+                        $scope.data.expression = a + str;
+                        selectionIdx = $scope.data.expression.length - 1;
+                        $scope.data.expression += b;
+                    }
+                    if (!agg) {
+                        selectionIdx++;
+                    }
+                    tc.selectionStart = selectionIdx;
+                    tc.selectionEnd = selectionIdx;
+                };
+                $scope.verify = function () {
+                    $scope.alerts = [];
+                    var v = verifyAggExpRegx($scope.data.expression);
+                    $scope.alerts = [{
+                        msg: v.isValid ? translate("COMMON.SUCCESS") : v.msg,
+                        type: v.isValid ? 'success' : 'danger'
+                    }];
+                };
+                $scope.ok = function () {
+                    if (!$scope.data.alias) {
+                        ModalUtils.alert(translate('CONFIG.WIDGET.ALIAS') + translate('COMMON.NOT_EMPTY'), "modal-warning", "lg");
+                        return;
+                    }
+                    ok($scope.data);
+                    $uibModalInstance.close();
+                };
+            }
+        });
+    };
 
 // $scope.loadData = function () {
 //     cleanPreview();
@@ -288,105 +278,105 @@ $scope.editExp = function (col) {
 //     });
 // };
 
-var cleanPreview = function () {
-    $('#dataset_preview').html("");
-};
+    var cleanPreview = function () {
+        $('#dataset_preview').html("");
+    };
 
 
-/**  js tree related start **/
-$scope.treeConfig = jsTreeConfig1;
+    /**  js tree related start **/
+    $scope.treeConfig = jsTreeConfig1;
 
-$("#" + treeID).keyup(function (e) {
-    if (e.keyCode == 46) {
-        $scope.deleteNode();
-    }
-});
-
-var getSelectedDataSet = function () {
-    var selectedNode = jstree_GetSelectedNodes(treeID)[0];
-    return _.find($scope.datasetList, function (ds) {
-        return ds.id == selectedNode.id;
+    $("#" + treeID).keyup(function (e) {
+        if (e.keyCode == 46) {
+            $scope.deleteNode();
+        }
     });
-};
 
-var checkTreeNode = function (actionType) {
-    return jstree_CheckTreeNode(actionType, treeID, ModalUtils.alert);
-};
+    var getSelectedDataSet = function () {
+        var selectedNode = jstree_GetSelectedNodes(treeID)[0];
+        return _.find($scope.datasetList, function (ds) {
+            return ds.id == selectedNode.id;
+        });
+    };
 
-var switchNode = function (id) {
-    $scope.ignoreChanges = false;
-    var dataSetTree = jstree_GetWholeTree(treeID);
-    dataSetTree.deselect_all();
-    dataSetTree.select_node(id);
-};
+    var checkTreeNode = function (actionType) {
+        return jstree_CheckTreeNode(actionType, treeID, ModalUtils.alert);
+    };
 
-$scope.applyModelChanges = function () {
-    return !$scope.ignoreChanges;
-};
+    var switchNode = function (id) {
+        $scope.ignoreChanges = false;
+        var dataSetTree = jstree_GetWholeTree(treeID);
+        dataSetTree.deselect_all();
+        dataSetTree.select_node(id);
+    };
 
-$scope.copyNode = function () {
-    if (!checkTreeNode("copy")) return;
-    $scope.copyDs(getSelectedDataSet());
-};
+    $scope.applyModelChanges = function () {
+        return !$scope.ignoreChanges;
+    };
 
-$scope.editNode = function () {
-    if (!checkTreeNode("edit")) return;
-    $scope.editDs(getSelectedDataSet());
-};
+    $scope.copyNode = function () {
+        if (!checkTreeNode("copy")) return;
+        $scope.copyDs(getSelectedDataSet());
+    };
 
-$scope.deleteNode = function () {
-    if (!checkTreeNode("delete")) return;
-    $scope.deleteDs(getSelectedDataSet());
-};
+    $scope.editNode = function () {
+        if (!checkTreeNode("edit")) return;
+        $scope.editDs(getSelectedDataSet());
+    };
+
+    $scope.deleteNode = function () {
+        if (!checkTreeNode("delete")) return;
+        $scope.deleteDs(getSelectedDataSet());
+    };
 
 //生成树（前端加载出所有dataset）
-$scope.searchNode = function () {
-    var para = {dsName: '', dsrName: ''};
-    //map datasetList to list (add datasourceName)
-    var list = $scope.datasetList.map(function (ds) {
-        var dsr = _.find($scope.datasourceList, function (obj) {
-            return obj.id == ds.data.datasource
+    $scope.searchNode = function () {
+        var para = {dsName: '', dsrName: ''};
+        //map datasetList to list (add datasourceName)
+        var list = $scope.datasetList.map(function (ds) {
+            var dsr = _.find($scope.datasourceList, function (obj) {
+                return obj.id == ds.data.datasource
+            });
+            return {
+                "id": ds.id,
+                "name": ds.name,
+                "categoryName": ds.categoryName,
+                "datasourceName": dsr ? dsr.name : ''
+            };
         });
-        return {
-            "id": ds.id,
-            "name": ds.name,
-            "categoryName": ds.categoryName,
-            "datasourceName": dsr ? dsr.name : ''
-        };
-    });
-    //split search keywords
-    if ($scope.keywords) {
-        if ($scope.keywords.indexOf(' ') == -1 && $scope.keywords.indexOf(':') == -1) {
-            para.dsName = $scope.keywords;
-        } else {
-            var keys = $scope.keywords.split(' ');
-            for (var i = 0; i < keys.length; i++) {
-                var w = keys[i].trim();
-                if (w.split(':')[0] == 'ds') {
-                    para["dsName"] = w.split(':')[1];
-                }
-                if (w.split(':')[0] == 'dsr') {
-                    para["dsrName"] = w.split(':')[1];
+        //split search keywords
+        if ($scope.keywords) {
+            if ($scope.keywords.indexOf(' ') == -1 && $scope.keywords.indexOf(':') == -1) {
+                para.dsName = $scope.keywords;
+            } else {
+                var keys = $scope.keywords.split(' ');
+                for (var i = 0; i < keys.length; i++) {
+                    var w = keys[i].trim();
+                    if (w.split(':')[0] == 'ds') {
+                        para["dsName"] = w.split(':')[1];
+                    }
+                    if (w.split(':')[0] == 'dsr') {
+                        para["dsrName"] = w.split(':')[1];
+                    }
                 }
             }
         }
-    }
-    //filter data by keywords
-    originalData = jstree_CvtVPath2TreeData(
-        $filter('filter')(list, {name: para.dsName, datasourceName: para.dsrName})
-    );
+        //filter data by keywords
+        originalData = jstree_CvtVPath2TreeData(
+            $filter('filter')(list, {name: para.dsName, datasourceName: para.dsrName})
+        );
 
-    jstree_ReloadTree(treeID, originalData);
-};
+        jstree_ReloadTree(treeID, originalData);
+    };
 
-$scope.treeEventsObj = function () {
-    var baseEventObj = jstree_baseTreeEventsObj({
-        ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,
-        treeID: treeID, listName: "datasetList", updateUrl: updateUrl
-    });
-    return baseEventObj;
-}();
+    $scope.treeEventsObj = function () {
+        var baseEventObj = jstree_baseTreeEventsObj({
+            ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,
+            treeID: treeID, listName: "datasetList", updateUrl: updateUrl
+        });
+        return baseEventObj;
+    }();
 
-/**  js tree related end **/
+    /**  js tree related end **/
 })
 ;

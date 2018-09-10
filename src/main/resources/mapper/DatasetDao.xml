@@ -29,7 +29,9 @@
               user_id       AS userId,
               dataset_name  AS name,
               data_json     AS data,
-              category_name AS categoryName
+              category_name AS categoryName,
+              config_json   AS config,
+              dataset_type  AS type
          FROM dashboard_dataset
                WHERE #{0} = '${admin_user_id}' AND dataset_type=#{1} AND user_id = #{0} OR dataset_id IN (
              SELECT res_id
