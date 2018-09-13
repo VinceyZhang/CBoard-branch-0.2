@@ -32,17 +32,41 @@ public class OffLineAnalysisController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private DataManagerService dataManagerService;
+
+
+    @RequestMapping(value = "/getTablesByDBName")
+    public DataProviderResult getTablesByDBName(@RequestParam(name = "datasourceId") Long datasourceId,@RequestParam(name = "dbName") String dbName) {
+
+        return dataManagerService.getTablesBySource(datasourceId,dbName);
+    }
+
+    @RequestMapping(value = "/getDBByDatasource")
+    public DataProviderResult getDBByDatasource(@RequestParam(name = "datasourceId") String datasourceId) {
+        String userId = authenticationService.getCurrentUser().getUserId();
+        return dataManagerService.getDBByDatasource(userId, Long.parseLong(datasourceId));
+    }
+
     @RequestMapping(value = "/saveNewAnalysis")
     public ServiceStatus saveNewAnalysis(@RequestParam(name = "json") String json) {
         String userId = authenticationService.getCurrentUser().getUserId();
-        return offLineAnalysisService.saveAnalysisParamInfo(userId,json);
+        return offLineAnalysisService.saveAnalysisParamInfo(userId, json);
     }
 
+
+    @RequestMapping(value = "/updateAnalysis")
+    public ServiceStatus updateAnalysis(@RequestParam(name = "json") String json) {
+        String userId = authenticationService.getCurrentUser().getUserId();
+        return offLineAnalysisService.updateAnalysisParamInfo(userId, json);
+    }
+
+
     @RequestMapping(value = "/getDatasetListByType")
-    public List<ViewDashboardDataset> getDatasetListByType(@RequestParam(name = "type")Integer type) {
+    public List<ViewDashboardDataset> getDatasetListByType(@RequestParam(name = "type") Integer type) {
 
         String userId = authenticationService.getCurrentUser().getUserId();
-        List<DashboardDataset> list = datasetService.getDatasetListByType(userId,type);
+        List<DashboardDataset> list = datasetService.getDatasetListByType(userId, type);
         return Lists.transform(list, ViewDashboardDataset.TO);
     }
 }

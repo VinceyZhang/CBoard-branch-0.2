@@ -10,6 +10,15 @@ public class DashboardDatasource {
     private String name;
     private String type;
     private String config;
+    private String dbType;
+
+    public String getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
+    }
 
     public Long getId() {
         return id;

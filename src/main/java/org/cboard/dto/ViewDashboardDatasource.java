@@ -16,6 +16,7 @@ public class ViewDashboardDatasource {
     private String userId;
     private String name;
     private String type;
+    private String dbType;
     private Map<String, Object> config;
 
     public static final Function TO = new Function<DashboardDatasource, ViewDashboardDatasource>() {
@@ -31,7 +32,17 @@ public class ViewDashboardDatasource {
         this.userId = datasource.getUserId();
         this.name = datasource.getName();
         this.type = datasource.getType();
+        this.dbType = datasource.getDbType();
         this.config = JSONObject.parseObject(datasource.getConfig());
+    }
+
+
+    public String getDbType() {
+        return dbType;
+    }
+
+    public void setDbType(String dbType) {
+        this.dbType = dbType;
     }
 
     public Long getId() {

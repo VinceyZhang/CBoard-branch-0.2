@@ -101,16 +101,7 @@ public class DataManagerController {
         return dataManagerService.getDataSources(datasourceId);
     }
 
-    /**
-     * 获取所有表名
-     *
-     * @param datasourceId
-     * @return
-     */
-    @RequestMapping(value = "/getTablesBySource")
-    public DataProviderResult getTablesBySource(@RequestParam(name = "datasourceId", required = false) Long datasourceId) {
-        return dataManagerService.getTablesBySource(datasourceId);
-    }
+
 
     /**
      * 根据表名查询数据

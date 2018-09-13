@@ -31,7 +31,7 @@ public class MenuService {
         menuList.add(new DashboardMenu(8, 7, "SIDEBAR.USER_ADMIN", "admin.user"));
         menuList.add(new DashboardMenu(9, 12, "SIDEBAR.DATA_MANAGER", "config.dataManager"));
         menuList.add(new DashboardMenu(10, 12, "SIDEBAR.DATA_MANAGER_WIDGET", "config.dataManagerWidget"));
-        menuList.add(new DashboardMenu(11, 12, "SIDEBAR.DATA_MANAGER_BOARD", "config.dataManagerBoard"));
+//        menuList.add(new DashboardMenu(11, 12, "SIDEBAR.DATA_MANAGER_BOARD", "config.dataManagerBoard"));
         menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_DIR", "config.dataManagerDir"));
         menuList.add(new DashboardMenu(12, 1, "SIDEBAR.DATA_MANAGER_BOARD_VIEW", "config.dataManagerBoardView"));
         menuList.add(new DashboardMenu(13, 1, "SIDEBAR.DATA_VIEW", "config.data_view"));

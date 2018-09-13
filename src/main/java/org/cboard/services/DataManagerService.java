@@ -41,7 +41,33 @@ public class DataManagerService extends DataProviderService {
     @Autowired
     CachedDataProviderService cachedDataProviderService;
 
-    public DataProviderResult getTablesBySource(Long datasourceId) {
+
+    /**
+     * 查询数据库
+     *
+     * @param userId
+     * @param datasourceId
+     * @return
+     */
+    public DataProviderResult getDBByDatasource(String userId, long datasourceId) {
+        //查找该数据源的连接信息
+        DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
+        //通过连接信息去查询该库下所有表
+        Map<String, String> query = new HashMap<String, String>();
+
+        JSONObject jsonObject = JSONObject.parseObject(datasource.getConfig());
+
+        if (datasource.getDbType().equals("mysql")) {
+            query.put("sql", "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA ");
+        } else if (datasource.getDbType().equals("sqlserver")) {
+            query.put("sql", "SELECT * FROM SYSDATABASES;");
+        }
+        DataProviderResult result = getData(datasourceId, query, null);
+        return result;
+    }
+
+
+    public DataProviderResult getTablesBySource(Long datasourceId, String dbName) {
         //查找该数据源的连接信息
         DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
         //通过连接信息去查询该库下所有表
@@ -49,16 +75,22 @@ public class DataManagerService extends DataProviderService {
 
         JSONObject jsonObject = JSONObject.parseObject(datasource.getConfig());
         String jdbcurl = jsonObject.get("jdbcurl").toString();
-        String dbName = jdbcurl.substring(jdbcurl.lastIndexOf("/") + 1, jdbcurl.length());
-        query.put("sql", "select table_name from information_schema.tables where table_schema='" + dbName + "' and table_type='base table';");
-        DataProviderResult result = getData(datasourceId, query, null);
+        //    String dbName = jdbcurl.substring(jdbcurl.lastIndexOf("/") + 1, jdbcurl.length());
+        if (datasource.getDbType().equals("mysql")) {
+            query.put("sql", "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA='" + dbName + "' AND TABLE_TYPE='BASE TABLE';");
+        } else if (datasource.getDbType().equals("sqlserver")) {
+            String config = datasource.getConfig().replaceAll("DatabaseName=\\w+", "DatabaseName=" + dbName);
+            datasource.setConfig(config);
+            query.put("sql", "SELECT NAME FROM SYSOBJECTS WHERE XTYPE='U';");
+        }
+        DataProviderResult result = getData(datasource, query);
         return result;
     }
 
     public ServiceStatus importData(Long datasourceId, Long datasetId, MultipartFile file) {
 
-        if(file==null){
-            return new ServiceStatus(ServiceStatus.Status.Fail,"请先选择一份文件！");
+        if (file == null) {
+            return new ServiceStatus(ServiceStatus.Status.Fail, "请先选择一份文件！");
         }
 
         // 先判断上传的文件是不是excel

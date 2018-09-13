@@ -11,6 +11,11 @@
     <label>{{'CONFIG.DATA_SOURCE.NAME'|translate}}</label>
     <input id="DataSetName" ng-model="curDatasource.name" class="form-control input-sm"/>
 </div>
+<div class="form-group">
+    <label>数据库类型</label>
+    <input  ng-model="curDatasource.dbType" class="form-control input-sm"/>
+</div>
+
 <div ng-include="dsView"></div>
 </div>
 <div class="form-group">

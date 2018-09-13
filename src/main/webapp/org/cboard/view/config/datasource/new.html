@@ -4,7 +4,7 @@
     </div>
 </div>
 <div class="form-group">
-    <label>{{'CONFIG.DATA_SOURCE.DATA_PROVIDER'|translate}}1111111111111</label>
+    <label>{{'CONFIG.DATA_SOURCE.DATA_PROVIDER'|translate}}</label>
     <select class="form-control" ng-model="curDatasource.type"
             ng-change="changeDsView()"
             ng-options="d for d in providerList"></select>
@@ -13,6 +13,11 @@
     <label>{{'CONFIG.DATA_SOURCE.NAME'|translate}}</label>
     <input id="DataSetName" ng-model="curDatasource.name" class="form-control input-sm"/>
 </div>
+<div class="form-group">
+    <label>数据库类型</label>
+    <input  ng-model="curDatasource.dbType" class="form-control input-sm"/>
+</div>
+
 <div ng-include="dsView"></div>
 </div>
 <div class="form-group">

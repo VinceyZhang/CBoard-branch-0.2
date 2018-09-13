@@ -14,7 +14,7 @@
               data_json     AS data,
               category_name AS categoryName
          FROM dashboard_dataset
-               WHERE #{0} = '${admin_user_id}' AND dataset_type=0 AND user_id = #{0} OR dataset_id IN (
+               WHERE #{0} = '${admin_user_id}'  AND user_id = #{0} OR dataset_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
@@ -49,8 +49,10 @@
     <insert id="save" parameterType="org.cboard.pojo.DashboardDataset">
         <![CDATA[
 
+
         INSERT INTO dashboard_dataset(user_id,dataset_name,data_json,category_name,dataset_type,config_json) VALUES
         (#{userId},#{name},#{data},#{categoryName},#{type},#{config})
+
 
         ]]>
     </insert>
@@ -58,7 +60,9 @@
     <update id="update" parameterType="org.cboard.pojo.DashboardDataset">
         <![CDATA[
 
-        UPDATE dashboard_dataset SET dataset_name = #{name},data_json = #{data},category_name = #{categoryName} where dataset_id = #{id}
+
+        UPDATE dashboard_dataset SET dataset_name = #{name},data_json = #{data},category_name = #{categoryName},config_json=#{config} where dataset_id = #{id}
+
 
         ]]>
     </update>

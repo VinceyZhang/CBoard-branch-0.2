@@ -18,11 +18,92 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
     var treeID = 'dataSetTreeID'; // Set to a same value with treeDom
     var originalData = [];
-    var updateUrl = "dashboard/updateDataset.do";
+    var updateUrl = "offLineAnalysis/updateAnalysis.do";
 
     $http.get("dashboard/getDatasourceList.do").success(function (response) {
         $scope.datasourceList = response;
     });
+
+    $scope.datasourceIdSelect = 0;
+
+    $scope.loadDB = function (datasource, type) {
+        var databases = [];
+
+        if (type == "from") {
+
+            $scope.datasourceIdSelect = datasource.id;
+            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelect}).success(function (response) {
+                databases = response.data;
+                $scope.databasesFrom = [];
+                if (databases.length > 1) {
+                    for (var i = 1; i < databases.length; i++) {
+                        $scope.databasesFrom.push(databases[i][0]);
+
+                    }
+                }
+                return $scope.databasesFrom;
+            });
+
+
+        } else if (type == "to") {
+
+            $scope.datasourceIdSelect = datasource.id;
+            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelect}).success(function (response) {
+                databases = response.data;
+                $scope.databasesTo = [];
+                if (databases.length > 1) {
+                    for (var i = 1; i < databases.length; i++) {
+                        $scope.databasesTo.push(databases[i][0]);
+
+                    }
+                }
+                return $scope.databasesTo;
+            });
+
+
+        }
+
+
+
+    };
+
+    $scope.loadTables = function (dbName, type) {
+        var tables = [];
+
+        if (type == "from") {
+            $http.post("offLineAnalysis/getTablesByDBName.do", {
+                datasourceId: $scope.datasourceIdSelect,
+                dbName: dbName
+            }).success(function (response) {
+                tables = response.data;
+                $scope.tablesFrom = [];
+                if (tables.length > 1) {
+                    for (var i = 1; i < tables.length; i++) {
+                        $scope.tablesFrom.push(tables[i][0]);
+
+                    }
+                }
+            });
+        } else if (type == "to") {
+
+            $http.post("offLineAnalysis/getTablesByDBName.do", {
+                datasourceId: $scope.datasourceIdSelect,
+                dbName: dbName
+            }).success(function (response) {
+                tables = response.data;
+                $scope.tablesTo = [];
+                if (tables.length > 1) {
+                    for (var i = 1; i < tables.length; i++) {
+                        $scope.tablesTo.push(tables[i][0]);
+
+                    }
+                }
+            });
+
+        }
+
+    };
+
 
     var getDatasetList = function () {
         $http.post("offLineAnalysis/getDatasetListByType.do", {type: 1}).success(function (response) {
@@ -63,19 +144,26 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
     var doEditDs = function (ds) {
         $scope.optFlag = 'edit';
-        $scope.curDataset = angular.copy(ds);
-        $scope.curDataset.name = $scope.curDataset.categoryName + '/' + $scope.curDataset.name;
         $scope.curAnalysis = angular.copy(ds);
-        if (!$scope.curDataset.data.expressions) {
-            $scope.curDataset.data.expressions = [];
+        $scope.curAnalysis.name = $scope.curAnalysis.categoryName + '/' + $scope.curAnalysis.name;
+
+        if (!$scope.curAnalysis.data.expressions) {
+            $scope.curAnalysis.data.expressions = [];
         }
-        $scope.databaseSource = _.find($scope.datasourceList, function (ds) {
-            return ds.id == $scope.curDataset.data.datasource;
+        $scope.curAnalysis.config.databaseSource = _.find($scope.datasourceList, function (ds) {
+            return ds.id == $scope.curAnalysis.config.databaseSource.id;
         });
-        $scope.databaseResult = _.find($scope.datasourceList, function (ds) {
-            return ds.id == $scope.curDataset.data.datasource;
+
+        $scope.loadDB($scope.curAnalysis.config.databaseSource, "from");
+        $scope.loadTables($scope.curAnalysis.config.dbSourceName,"from");
+
+        $scope.curAnalysis.config.databaseResult = _.find($scope.datasourceList, function (ds) {
+            return ds.id == $scope.curAnalysis.config.databaseResult.id;
         });
-        $scope.curWidget.query = $scope.curDataset.data.query;
+
+        $scope.loadDB($scope.curAnalysis.config.databaseResult, "to");
+        $scope.loadTables($scope.curAnalysis.config.dbResultName,"to");
+        $scope.curWidget.query = $scope.curAnalysis.data.query;
 
     };
 
@@ -115,7 +203,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
     $scope.save = function () {
         //设置当前配置信息的datasource
-        $scope.datasource ? $scope.curAnalysis.data.datasource = $scope.datasource.id : null;
+        $scope.curAnalysis.config.databaseResult ? $scope.curAnalysis.data.datasource = $scope.curAnalysis.config.databaseResult.id : null;
 
         if (!validate()) {
             return;
@@ -127,7 +215,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         if (ds.categoryName == '') {
             ds.categoryName = translate("COMMON.DEFAULT_CATEGORY");
         }
-        ds.config.sqlSelect = ds.data.query;
+        ds.config.sqlSelect = ds.data.query.sql;
         if ($scope.optFlag == 'new') {
             $http.post("offLineAnalysis/saveNewAnalysis.do", {json: angular.toJson(ds)}).success(function (serviceStatus) {
                 if (serviceStatus.status == '1') {

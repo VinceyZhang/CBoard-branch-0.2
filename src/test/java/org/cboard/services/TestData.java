@@ -11,9 +11,9 @@ import java.util.Properties;
 
 public class TestData {
     public static Connection getConnection() throws Exception {
-        String driver = ("com.mysql.jdbc.Driver");
-        String jdbcurl = ("jdbc:mysql://localhost:3306/test");
-        String username = ("root");
+        String driver = ("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        String jdbcurl = ("jdbc:sqlserver://localhost:1435;DatabaseName=test");
+        String username = ("su");
         String password = ("123456");
 
         Class.forName(driver);

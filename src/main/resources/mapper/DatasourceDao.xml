@@ -4,7 +4,11 @@
 
     <select id="getDatasourceConfig" resultType="java.lang.String">
         <![CDATA[
+
+
         SELECT config FROM dashboard_datasource WHERE datasource_id = #{0}
+
+
         ]]>
     </select>
 
@@ -14,7 +18,8 @@
               user_id       AS userId,
               source_name   AS name,
               source_type   AS type,
-              config        AS config
+              config        AS config,
+              db_type       AS dbType
          FROM dashboard_datasource
         WHERE #{0} = '${admin_user_id}' OR user_id = #{0} OR datasource_id IN (
              SELECT res_id
@@ -26,33 +31,41 @@
     </select>
 
     <select id="getDatasources" resultType="org.cboard.pojo.DashboardDatasource">
-        SELECT datasource_id id,user_id userId,source_name name,source_type type ,config FROM dashboard_datasource
+        SELECT datasource_id id,user_id userId,source_name name,source_type type ,config ,db_type dbType FROM dashboard_datasource
     </select>
 
     <select id="getDatasource" resultType="org.cboard.pojo.DashboardDatasource">
-        SELECT datasource_id id,user_id userId,source_name name,source_type type ,config FROM dashboard_datasource WHERE datasource_id = #{0}
+        SELECT datasource_id id,user_id userId,source_name name,source_type type ,config ,db_type dbType FROM dashboard_datasource WHERE datasource_id = #{0}
     </select>
 
     <insert id="save" parameterType="org.cboard.pojo.DashboardDatasource">
         <![CDATA[
-        INSERT INTO dashboard_datasource(user_id,source_name,source_type,config) VALUES (#{userId},#{name},#{type},#{config})
+
+
+        INSERT INTO dashboard_datasource(user_id,source_name,source_type,config,db_type) VALUES (#{userId},#{name},#{type},#{config},#{dbType})
+
+
         ]]>
     </insert>
 
     <update id="update" parameterType="org.cboard.pojo.DashboardDatasource">
         <![CDATA[
-        UPDATE dashboard_datasource SET source_name = #{name},config = #{config} where datasource_id = #{id}
+
+
+        UPDATE dashboard_datasource SET source_name = #{name},config = #{config},db_type=#{dbType} where datasource_id = #{id}
+
+
         ]]>
     </update>
 
     <select id="countExistDatasourceName" resultType="java.lang.Long">
         SELECT count(1) from dashboard_datasource where 1=1
-        <if test="datasource_id != null" >
-        <![CDATA[
+        <if test="datasource_id != null">
+            <![CDATA[
             and datasource_id <> #{datasource_id}
             ]]>
         </if>
-          and source_name = #{source_name}
+        and source_name = #{source_name}
     </select>
 
     <delete id="delete">

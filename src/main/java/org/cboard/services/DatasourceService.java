@@ -25,6 +25,7 @@ public class DatasourceService {
         datasource.setName(jsonObject.getString("name"));
         datasource.setType(jsonObject.getString("type"));
         datasource.setConfig(jsonObject.getString("config"));
+        datasource.setDbType(jsonObject.getString("dbType"));
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_id", datasource.getUserId());
@@ -45,6 +46,7 @@ public class DatasourceService {
         datasource.setType(jsonObject.getString("type"));
         datasource.setConfig(jsonObject.getString("config"));
         datasource.setId(jsonObject.getLong("id"));
+        datasource.setDbType(jsonObject.getString("dbType"));
 
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("datasource_id", datasource.getId());

@@ -30,6 +30,7 @@ public class ViewDashboardWidget {
     public ViewDashboardWidget(DashboardWidget widget) {
         this.id = widget.getId();
         this.userId = widget.getUserId();
+        this.userId = widget.getUserId();
         this.name = widget.getName();
         this.categoryName = widget.getCategoryName();
         this.data = JSONObject.parseObject(widget.getData());

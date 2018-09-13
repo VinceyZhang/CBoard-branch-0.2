@@ -68,6 +68,28 @@ public class DataProviderService {
         return new DataProviderResult(dataArray, msg);
     }
 
+    public DataProviderResult getData(DashboardDatasource datasource, Map<String, String> query) {
+        String[][] dataArray = null;
+        int resultCount = 0;
+        String msg = "1";
+
+
+        try {
+            JSONObject config = JSONObject.parseObject(datasource.getConfig());
+            DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
+            Map<String, String> parameterMap = Maps.transformValues(config, Functions.toStringFunction());
+            resultCount = dataProvider.resultCount(parameterMap, query);
+            if (resultCount > resultLimit) {
+                msg = "Cube result count is " + resultCount + ", greater than limit " + resultLimit;
+            } else {
+                dataArray = dataProvider.getData(parameterMap, query);
+            }
+        } catch (Exception e) {
+            msg =  e.getMessage();
+        }
+        return new DataProviderResult(dataArray, msg);
+    }
+
     protected Dataset getDataset(Long datasetId) {
         return new Dataset(datasetDao.getDataset(datasetId));
     }
