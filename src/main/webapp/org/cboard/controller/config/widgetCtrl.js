@@ -257,6 +257,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         $scope.curWidget = {};
         $scope.curWidget.config = {};
         $scope.curWidget.query = {};
+        $scope.widgetType = 0;
         $scope.datasource = null;
         $scope.widgetName = null;
         $scope.widgetCategory = null;
@@ -601,6 +602,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         }
 
         var o = {};
+        o.type = $scope.widgetType;
         o.name = $scope.widgetName.slice($scope.widgetName.lastIndexOf("/") + 1).trim();
         o.categoryName = $scope.widgetName.substring(0, $scope.widgetName.lastIndexOf("/")).trim();
         if (o.categoryName == '') {
@@ -680,6 +682,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         $scope.widgetName = angular.copy(widget.categoryName + "/" + widget.name);
 
         $scope.widgetId = widget.id;
+        $scope.widgetType = widget.type;
         $scope.optFlag = 'edit';
         $scope.loading = true;
         $scope.customDs = _.isUndefined($scope.curWidget.datasetId);

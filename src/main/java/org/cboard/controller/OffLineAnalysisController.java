@@ -62,11 +62,5 @@ public class OffLineAnalysisController {
     }
 
 
-    @RequestMapping(value = "/getDatasetListByType")
-    public List<ViewDashboardDataset> getDatasetListByType(@RequestParam(name = "type") Integer type) {
 
-        String userId = authenticationService.getCurrentUser().getUserId();
-        List<DashboardDataset> list = datasetService.getDatasetListByType(userId, type);
-        return Lists.transform(list, ViewDashboardDataset.TO);
-    }
 }

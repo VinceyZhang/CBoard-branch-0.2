@@ -24,15 +24,15 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         $scope.datasourceList = response;
     });
 
-    $scope.datasourceIdSelect = 0;
-
+    $scope.datasourceIdSelectFrom = 0;
+    $scope.datasourceIdSelectTo = 0;
     $scope.loadDB = function (datasource, type) {
         var databases = [];
 
         if (type == "from") {
 
-            $scope.datasourceIdSelect = datasource.id;
-            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelect}).success(function (response) {
+            $scope.datasourceIdSelectFrom = datasource.id;
+            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelectFrom}).success(function (response) {
                 databases = response.data;
                 $scope.databasesFrom = [];
                 if (databases.length > 1) {
@@ -47,8 +47,8 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
         } else if (type == "to") {
 
-            $scope.datasourceIdSelect = datasource.id;
-            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelect}).success(function (response) {
+            $scope.datasourceIdSelectTo = datasource.id;
+            $http.post("offLineAnalysis/getDBByDatasource.do", {datasourceId: $scope.datasourceIdSelectTo}).success(function (response) {
                 databases = response.data;
                 $scope.databasesTo = [];
                 if (databases.length > 1) {
@@ -72,7 +72,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
         if (type == "from") {
             $http.post("offLineAnalysis/getTablesByDBName.do", {
-                datasourceId: $scope.datasourceIdSelect,
+                datasourceId: $scope.datasourceIdSelectFrom,
                 dbName: dbName
             }).success(function (response) {
                 tables = response.data;
@@ -87,7 +87,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         } else if (type == "to") {
 
             $http.post("offLineAnalysis/getTablesByDBName.do", {
-                datasourceId: $scope.datasourceIdSelect,
+                datasourceId: $scope.datasourceIdSelectTo,
                 dbName: dbName
             }).success(function (response) {
                 tables = response.data;
@@ -106,7 +106,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
 
     var getDatasetList = function () {
-        $http.post("offLineAnalysis/getDatasetListByType.do", {type: 1}).success(function (response) {
+        $http.post("dashboard/getDatasetListByType.do", {type: 1}).success(function (response) {
             $scope.datasetList = response;
             $scope.searchNode();
         });

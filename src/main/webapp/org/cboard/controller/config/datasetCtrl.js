@@ -19,11 +19,10 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
     });
 
     var getDatasetList = function () {
-        $http.get("dashboard/getDatasetList.do").success(function (response) {
+        $http.post("dashboard/getDatasetListByType.do", {type: 0}).success(function (response) {
             $scope.datasetList = response;
             $scope.searchNode();
         });
-
     };
 
     var getCategoryList = function () {
@@ -356,7 +355,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
 
         jstree_ReloadTree(treeID, originalData);
     };
-    
+
     $scope.treeEventsObj = function () {
         var baseEventObj = jstree_baseTreeEventsObj({
             ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,

@@ -15,7 +15,7 @@
               category_name AS categoryName,
               widget_type   AS type
          FROM dashboard_widget
-        WHERE (#{0} = '${admin_user_id}' AND user_id = #{0} AND widget_type=0 OR
+        WHERE (#{0} = '${admin_user_id}' OR user_id = #{0} AND widget_type=0 OR
                 widget_id IN (SELECT res_id FROM dashboard_user_role ur LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id WHERE ur.user_id = #{0} AND rr.res_type = 'widget')
             )
         ORDER BY widget_name
@@ -30,7 +30,7 @@
               category_name AS categoryName,
               widget_type   AS type
          FROM dashboard_widget
-        WHERE (#{userId} = '${admin_user_id}' AND user_id = #{userId} AND widget_type=#{type} OR
+        WHERE (#{userId} = '${admin_user_id}' OR user_id = #{userId} AND widget_type=#{type} OR
                 widget_id IN (SELECT res_id FROM dashboard_user_role ur LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id WHERE ur.user_id = #{userId} AND rr.res_type = 'widget')
             )
         ORDER BY widget_name

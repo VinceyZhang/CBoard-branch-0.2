@@ -5,7 +5,7 @@
     <select id="getCategoryList" resultType="java.lang.String">
         SELECT DISTINCT(category_name) category FROM dashboard_dataset order by category
     </select>
-
+    <!--#{0} = '${admin_user_id}' AND条件：只让管理员查看-->
     <select id="getDatasetList" resultType="org.cboard.pojo.DashboardDataset">
        SELECT
               dataset_id    AS id,
@@ -14,7 +14,7 @@
               data_json     AS data,
               category_name AS categoryName
          FROM dashboard_dataset
-               WHERE #{0} = '${admin_user_id}'  AND user_id = #{0} OR dataset_id IN (
+               WHERE   user_id = #{0} OR dataset_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
@@ -33,7 +33,7 @@
               config_json   AS config,
               dataset_type  AS type
          FROM dashboard_dataset
-               WHERE #{0} = '${admin_user_id}' AND dataset_type=#{1} AND user_id = #{0} OR dataset_id IN (
+               WHERE  dataset_type=#{1} AND user_id = #{0} OR dataset_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
