@@ -54,6 +54,17 @@ public class OffLineAnalysisService {
         JSONObject jsonObject = JSONObject.parseObject(json);
         DashboardDataset dataset = new DashboardDataset();
 
+        //设置结果sql
+        JSONObject configObject = JSONObject.parseObject(jsonObject.getString("config"));
+        JSONObject dataObject = JSONObject.parseObject(jsonObject.getString("data"));
+        JSONObject queryObject = JSONObject.parseObject(dataObject.getString("query"));
+        String sqlSelect = configObject.getString("sqlSelect").trim();
+        String table = configObject.getString("tableResult");
+        String sql = sqlSelect.replaceAll("from\\s+\\w+", "from " + table);
+        queryObject.put("sql", sql);
+        dataObject.put("query", queryObject.toString());
+        jsonObject.put("data", dataObject.toString());
+
         //保存离线分析数据到本系统数据库
         dataset.setUserId(userId);
         dataset.setName(jsonObject.getString("name"));
@@ -64,19 +75,15 @@ public class OffLineAnalysisService {
         if (StringUtils.isEmpty(dataset.getCategoryName())) {
             dataset.setCategoryName("默认分类");
         }
+
+//        Map<String, String> map = new HashMap<String, String>();
+//        map.put("sql", sqlMap.get("sql") + " limit 0,1");
+//        DataProviderResult result = cachedDataProviderService.getData(dataObject.getLong("datasource"), map, null);
+
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("dataset_name", dataset.getName());
         paramMap.put("user_id", dataset.getUserId());
         paramMap.put("category_name", dataset.getCategoryName());
-
-        JSONObject dataObject = JSONObject.parseObject(jsonObject.getString("data"));
-        Map<String, String> sqlMap = Maps.transformValues(JSONObject.parseObject(dataObject.getString("query")), Functions.toStringFunction());
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("sql", sqlMap.get("sql") + " limit 0,1");
-
-        DataProviderResult result = cachedDataProviderService.getData(dataObject.getLong("datasource"), map, null);
-
-
         if (datasetDao.countExistDatasetName(paramMap) <= 0) {
             ServiceStatus status = transferInterface(jsonObject);
             if (status.getStatus().equals("1")) {
@@ -93,6 +100,17 @@ public class OffLineAnalysisService {
     public ServiceStatus updateAnalysisParamInfo(String userId, String json) {
         JSONObject jsonObject = JSONObject.parseObject(json);
         DashboardDataset dataset = new DashboardDataset();
+
+        //设置结果sql
+        JSONObject configObject = JSONObject.parseObject(jsonObject.getString("config"));
+        JSONObject dataObject = JSONObject.parseObject(jsonObject.getString("data"));
+        JSONObject queryObject = JSONObject.parseObject(dataObject.getString("query"));
+        String sqlSelect = configObject.getString("sqlSelect").trim();
+        String table = configObject.getString("tableResult");
+        String sql = sqlSelect.replaceAll("from\\s+\\w+", "from " + table);
+        queryObject.put("sql", sql);
+        dataObject.put("query", queryObject.toString());
+        jsonObject.put("data", dataObject.toString());
 
         //保存离线分析数据到本系统数据库
         dataset.setUserId(userId);
@@ -140,6 +158,9 @@ public class OffLineAnalysisService {
         JSONObject datasourceFromConfig = JSONObject.parseObject(datasourceFrom.getString("config"));
         JSONObject datasourceToConfig = JSONObject.parseObject(datasourceTo.getString("config"));
 
+        String sql = new String(config.getString("sqlSelect").trim());
+        String tableSource = sql.substring(sql.lastIndexOf(" ") + 1);
+        config.put("tableSource", tableSource.trim());
 
         DataSourceHolder.setDataSources(DataSourceEnum.dataSourceAnalysis.getKey());
         //通过数据源名称查询是否已存在
