@@ -22,7 +22,9 @@ import org.cboard.dto.DataProviderResult;
 import org.cboard.pojo.DashboardDataset;
 import org.cboard.pojo.DashboardDatasource;
 import org.cboard.pojo.DashboardOffLineAnalysis;
+import org.cboard.properties.AnalysisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
@@ -48,6 +50,10 @@ public class OffLineAnalysisService {
 
     @Autowired
     private DatasetService datasetService;
+
+
+    @Value("${off_line_analysis_api}")
+    private String analysisAPI;
 
     public ServiceStatus saveAnalysisParamInfo(String userId, String json) {
 
@@ -140,6 +146,7 @@ public class OffLineAnalysisService {
 
     }
 
+
     /**
      * 调用远程接口保存离线分析配置信息 todo 验证sql查询表是否存在
      *
@@ -157,10 +164,6 @@ public class OffLineAnalysisService {
         JSONObject datasourceTo = JSONObject.parseObject(config.getString("databaseResult"));
         JSONObject datasourceFromConfig = JSONObject.parseObject(datasourceFrom.getString("config"));
         JSONObject datasourceToConfig = JSONObject.parseObject(datasourceTo.getString("config"));
-
-        String sql = new String(config.getString("sqlSelect").trim());
-        String tableSource = sql.substring(sql.lastIndexOf(" ") + 1);
-        config.put("tableSource", tableSource.trim());
 
         DataSourceHolder.setDataSources(DataSourceEnum.dataSourceAnalysis.getKey());
         //通过数据源名称查询是否已存在
@@ -188,22 +191,22 @@ public class OffLineAnalysisService {
             dbResultLinkMap.put("driverClassName", datasourceToConfig.get("driver"));
 
         }
+        dataMap.put("taskId", "test_test111");
         dataMap.put("dbResultLink", dbResultLinkMap);
         dataMap.put("databaseResult", datasourceTo.get("name"));
         //设置count语句
-        dataMap.put("sqlCount", "select count(*) from " + config.getString("tableSource"));
+        dataMap.put("sqlCount", "select count(*) from (" + config.getString("sqlSelect").trim() + ") a");
 
         try {
             //调用离线分析保存接口
             HttpClient client = HttpClients.createDefault();
-            HttpPost request = new HttpPost("http://192.168.188.58:9016/start/excute");
+            HttpPost request = new HttpPost(analysisAPI);
+            request.addHeader("Content-type", "application/json; charset=utf-8");
             request.setHeader("Accept", "application/json");
-            request.setHeader("Content-Type", "application/json");
             String paramsMap = JSONUtils.toJSONString(dataMap);
-            System.out.print("paramsMap" + paramsMap);
-            StringEntity entityForm = new StringEntity(paramsMap);
+//            System.out.print("paramsMap" + paramsMap);
+            StringEntity entityForm = new StringEntity(paramsMap, "UTF-8");
             entityForm.setContentType("application/json");
-            entityForm.setContentEncoding("UTF-8");
 
             request.setEntity(entityForm);
             HttpResponse response = client.execute(request);
