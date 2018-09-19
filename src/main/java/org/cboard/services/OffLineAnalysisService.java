@@ -2,8 +2,6 @@ package org.cboard.services;
 
 import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Functions;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,22 +12,18 @@ import org.apache.http.impl.client.HttpClients;
 import org.cboard.dao.AnalysisDao;
 import org.cboard.dao.DatasetDao;
 import org.cboard.dao.DatasourceDao;
-import org.cboard.dataprovider.DataProvider;
-import org.cboard.dataprovider.DataProviderManager;
 import org.cboard.datasource.DataSourceEnum;
 import org.cboard.datasource.DataSourceHolder;
-import org.cboard.dto.DataProviderResult;
 import org.cboard.pojo.DashboardDataset;
-import org.cboard.pojo.DashboardDatasource;
-import org.cboard.pojo.DashboardOffLineAnalysis;
-import org.cboard.properties.AnalysisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 @Repository
@@ -60,16 +54,33 @@ public class OffLineAnalysisService {
         JSONObject jsonObject = JSONObject.parseObject(json);
         DashboardDataset dataset = new DashboardDataset();
 
+//        //测试事务
+//        DashboardDataset dataset1=new DashboardDataset();
+//        dataset1.setId(null);
+//        dataset1.setUserId("001");
+//        datasetDao.save(dataset1);
+//
+//        DashboardDatasource datasource=new DashboardDatasource();
+//        datasource.setUserId("00112");
+//        datasourceDao.save(datasource);
+//
+//        String str=null;
+//        str.toString();
+
         //设置结果sql
         JSONObject configObject = JSONObject.parseObject(jsonObject.getString("config"));
         JSONObject dataObject = JSONObject.parseObject(jsonObject.getString("data"));
-        JSONObject queryObject = JSONObject.parseObject(dataObject.getString("query"));
-        String sqlSelect = configObject.getString("sqlSelect").trim();
+        JSONObject queryObject = new JSONObject();
         String table = configObject.getString("tableResult");
-        String sql = sqlSelect.replaceAll("from\\s+\\w+", "from " + table);
+        String sql = "select * from " + table;
         queryObject.put("sql", sql);
-        dataObject.put("query", queryObject.toString());
-        jsonObject.put("data", dataObject.toString());
+        dataObject.put("query", queryObject);
+        jsonObject.put("data", dataObject);
+
+        //设置taskId
+        UUID taskId = UUID.randomUUID();
+        configObject.put("taskId", taskId);
+        jsonObject.put("config", configObject);
 
         //保存离线分析数据到本系统数据库
         dataset.setUserId(userId);
@@ -110,13 +121,12 @@ public class OffLineAnalysisService {
         //设置结果sql
         JSONObject configObject = JSONObject.parseObject(jsonObject.getString("config"));
         JSONObject dataObject = JSONObject.parseObject(jsonObject.getString("data"));
-        JSONObject queryObject = JSONObject.parseObject(dataObject.getString("query"));
-        String sqlSelect = configObject.getString("sqlSelect").trim();
+        JSONObject queryObject = new JSONObject();
         String table = configObject.getString("tableResult");
-        String sql = sqlSelect.replaceAll("from\\s+\\w+", "from " + table);
+        String sql = "select * from " + table;
         queryObject.put("sql", sql);
-        dataObject.put("query", queryObject.toString());
-        jsonObject.put("data", dataObject.toString());
+        dataObject.put("query", queryObject);
+        jsonObject.put("data", dataObject);
 
         //保存离线分析数据到本系统数据库
         dataset.setUserId(userId);
@@ -153,7 +163,7 @@ public class OffLineAnalysisService {
      * @param jsonObject
      * @return
      */
-    private ServiceStatus transferInterface(JSONObject jsonObject) {
+    public ServiceStatus transferInterface(JSONObject jsonObject) {
 
         JSONObject config = JSONObject.parseObject(jsonObject.getString("config"));
         Map<String, Object> dataMap = config;
@@ -170,6 +180,7 @@ public class OffLineAnalysisService {
         int countFrom = analysisDao.getAnalysisList(datasourceFrom.getString("name"));
         int countTo = analysisDao.getAnalysisList(datasourceTo.getString("name"));
         DataSourceHolder.setDataSources(DataSourceEnum.dataSourceSys.getKey());
+
         Map<String, Object> dbSourceLinkMap = new HashMap<String, Object>();
         if (countFrom == 0) {
 
@@ -191,7 +202,7 @@ public class OffLineAnalysisService {
             dbResultLinkMap.put("driverClassName", datasourceToConfig.get("driver"));
 
         }
-        dataMap.put("taskId", "test_test111");
+
         dataMap.put("dbResultLink", dbResultLinkMap);
         dataMap.put("databaseResult", datasourceTo.get("name"));
         //设置count语句
@@ -204,7 +215,7 @@ public class OffLineAnalysisService {
             request.addHeader("Content-type", "application/json; charset=utf-8");
             request.setHeader("Accept", "application/json");
             String paramsMap = JSONUtils.toJSONString(dataMap);
-//            System.out.print("paramsMap" + paramsMap);
+            System.out.print("paramsMap" + paramsMap);
             StringEntity entityForm = new StringEntity(paramsMap, "UTF-8");
             entityForm.setContentType("application/json");
 

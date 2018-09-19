@@ -36,8 +36,10 @@
     "DATA_MANAGER_BOARD":"看板设计",
     "DATA_MANAGER_DIR":"数据管理",
     "DATA_VIEW":"可视化配置",
+    "DATA_MANAGER_DIR":"数据管理配置",
     "DATA_MANAGER_BOARD_VIEW":"看板查看",
-    "MY_DATA":"数据管理看板"
+    "MY_DATA":"数据管理看板",
+    "OFF_LINE_ANALYSIS":"离线分析配置"
   },
   "HEADER": {
     "SIGN_OUT": "注销"

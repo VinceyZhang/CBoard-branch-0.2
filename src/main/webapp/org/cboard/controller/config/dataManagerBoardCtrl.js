@@ -16,10 +16,10 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
     var updateUrl = "dashboard/updateBoard.do";
 
     var getBoardList = function () {
-        $http.get("dashboard/getBoardList.do").success(function (response) {
+        $http.post("dashboard/getBoardListByType.do", {json: angular.toJson({"type": 1})}).success(function (response) {
             $scope.boardList = response;
             originalData = jstree_CvtVPath2TreeData(
-                $scope.boardList.map(function(ds) {
+                $scope.boardList.map(function (ds) {
                     var categoryName = ds.categoryName == null ? translate('CONFIG.DASHBOARD.MY_DASHBOARD') : ds.categoryName;
                     return {
                         "id": ds.id,
@@ -42,13 +42,15 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
     };
 
     var getDatasetList = function () {
-        $http.post("dataManager/getDataManagerList.do").success(function (response) {
+        $http.post("dashboard/getDatasetList.do").success(function (response) {
             $scope.datasetList = response;
-        }).then ($http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type":1})}).success(function (response) {
+        }).then($http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type": 1})}).success(function (response) {
             $scope.widgetList = response;
-            $scope.widgetList = $scope.widgetList.map(function(w) {
+            $scope.widgetList = $scope.widgetList.map(function (w) {
                 if (w.data.datasetId != null) {
-                    var dataset = _.find($scope.datasetList, function (ds) { return ds.id == w.data.datasetId; });
+                    var dataset = _.find($scope.datasetList, function (ds) {
+                        return ds.id == w.data.datasetId;
+                    });
                     w.dataset = dataset == null ? 'Lost DataSet' : dataset.name;
                 } else {
                     w.dataset = "Query";
@@ -112,7 +114,7 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
 
     $scope.newBoard = function () {
         $scope.optFlag = 'new';
-        $scope.curBoard = {layout: {rows: []},type:1};
+        $scope.curBoard = {layout: {rows: []}, type: 1};
 
     };
 
@@ -156,10 +158,9 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
         w.name = '图表名称';
         w.width = 12;
         w.widgetId = $scope.widgetList[0].id;
-        w.params=$scope.widgetList[0].data.config.params;
+        w.params = $scope.widgetList[0].data.config.params;
         row.widgets.push(w);
     };
-
 
 
     $scope.addRow = function () {
@@ -306,18 +307,20 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
     $scope.treeConfig = jsTreeConfig1;
     $scope.treeConfig.plugins = ['types', 'unique', 'state', 'sort'];
 
-    $("#" + treeID).keyup(function(e){
-        if(e.keyCode == 46) {
+    $("#" + treeID).keyup(function (e) {
+        if (e.keyCode == 46) {
             $scope.deleteBoard(getSelectedBoard());
         }
     });
 
-    var getSelectedBoard = function() {
+    var getSelectedBoard = function () {
         var selectedNode = jstree_GetSelectedNodes(treeID)[0];
-        return _.find($scope.boardList, function (ds) { return ds.id == selectedNode.id; });
+        return _.find($scope.boardList, function (ds) {
+            return ds.id == selectedNode.id;
+        });
     };
 
-    var checkTreeNode = function(actionType) {
+    var checkTreeNode = function (actionType) {
         return jstree_CheckTreeNode(actionType, treeID, ModalUtils.alert);
     };
 
@@ -328,7 +331,7 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
         dataSetTree.select_node(id);
     };
 
-    $scope.applyModelChanges = function() {
+    $scope.applyModelChanges = function () {
         return !$scope.ignoreChanges;
     };
 
@@ -342,12 +345,12 @@ cBoard.controller('dataManagerBoardCtrl', function ($scope, $http, ModalUtils, $
         $scope.editBoard(getSelectedBoard());
     };
 
-    $scope.deleteNode = function(){
+    $scope.deleteNode = function () {
         if (!checkTreeNode("delete")) return;
         $scope.deleteBoard(getSelectedBoard());
     };
 
-    $scope.treeEventsObj = function() {
+    $scope.treeEventsObj = function () {
         var baseEventObj = jstree_baseTreeEventsObj({
             ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,
             treeID: treeID, listName: "boardList"

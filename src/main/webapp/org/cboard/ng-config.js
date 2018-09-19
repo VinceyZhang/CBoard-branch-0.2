@@ -62,10 +62,6 @@ angular.module('cBoard').config(['$stateProvider', function ($stateProvider) {
         url: '/dataset',
         templateUrl: 'org/cboard/view/config/dataset.html',
         controller: 'datasetCtrl'
-    }).state('config.datamanager', {
-        url: '/datamanager',
-        templateUrl: 'org/cboard/view/config/datamanager.html',
-        controller: 'datamanagerCtrl'
     }).state('config.dataManagerWidget', {
         url: '/dataManagerWidget',
         templateUrl: 'org/cboard/view/config/dataManagerWidget.html',

@@ -64,7 +64,6 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         }
 
 
-
     };
 
     $scope.loadTables = function (dbName, type) {
@@ -73,7 +72,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         if (type == "from") {
             $http.post("offLineAnalysis/getTablesByDBName.do", {
                 datasourceId: $scope.datasourceIdSelectFrom,
-                dbName: dbName
+                dbName: dbName == null ? "" : dbName
             }).success(function (response) {
                 tables = response.data;
                 $scope.tablesFrom = [];
@@ -88,7 +87,7 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
 
             $http.post("offLineAnalysis/getTablesByDBName.do", {
                 datasourceId: $scope.datasourceIdSelectTo,
-                dbName: dbName
+                dbName: dbName == null ? "" : dbName
             }).success(function (response) {
                 tables = response.data;
                 $scope.tablesTo = [];
@@ -155,15 +154,15 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         });
 
         $scope.loadDB($scope.curAnalysis.config.databaseSource, "from");
-        $scope.loadTables($scope.curAnalysis.config.dbSourceName,"from");
+        $scope.loadTables($scope.curAnalysis.config.dbSourceName, "from");
 
         $scope.curAnalysis.config.databaseResult = _.find($scope.datasourceList, function (ds) {
             return ds.id == $scope.curAnalysis.config.databaseResult.id;
         });
 
         $scope.loadDB($scope.curAnalysis.config.databaseResult, "to");
-        $scope.loadTables($scope.curAnalysis.config.dbResultName,"to");
-        $scope.curWidget.query = $scope.curAnalysis.data.query;
+        $scope.loadTables($scope.curAnalysis.config.dbResultName, "to");
+        $scope.curWidget.query = $scope.curAnalysis.data.query.sql;
 
     };
 
@@ -215,7 +214,6 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         if (ds.categoryName == '') {
             ds.categoryName = translate("COMMON.DEFAULT_CATEGORY");
         }
-        ds.config.sqlSelect = ds.data.query.sql;
         if ($scope.optFlag == 'new') {
             $http.post("offLineAnalysis/saveNewAnalysis.do", {json: angular.toJson(ds)}).success(function (serviceStatus) {
                 if (serviceStatus.status == '1') {
@@ -326,45 +324,46 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
         });
     };
 
-// $scope.loadData = function () {
-//     cleanPreview();
-//     $scope.loading = true;
-//
-//     dataService.getData($scope.datasource.id, $scope.curWidget.query, null, function (widgetData) {
-//         $scope.loading = false;
-//         $scope.toChartDisabled = false;
-//         if (widgetData.msg == '1') {
-//             $scope.alerts = [];
-//             $scope.widgetData = widgetData.data;
-//             $scope.selects = angular.copy($scope.widgetData[0]);
-//         } else {
-//             if (widgetData.msg != null) {
-//                 $scope.alerts = [{msg: widgetData.msg, type: 'danger'}];
-//             }
-//         }
-//
-//         var widget = {
-//             chart_type: "table",
-//             filters: [],
-//             groups: [],
-//             keys: [],
-//             selects: [],
-//             values: [{
-//                 cols: []
-//             }
-//             ]
-//         };
-//         _.each($scope.widgetData[0], function (c) {
-//             widget.keys.push({
-//                 col: c,
-//                 type: "eq",
-//                 values: []
-//             });
-//         });
-//
-//        // chartService.render($('#dataset_preview'), $scope.widgetData, widget, null, {myheight: 300});
-//     });
-// };
+    $scope.loadData = function () {
+        cleanPreview();
+        $scope.loading = true;
+
+        dataService.getDataForTest($scope.curAnalysis.config.databaseSource.id,
+            {sql: $scope.curAnalysis.config.sqlSelect}, function (widgetData) {
+                $scope.loading = false;
+                $scope.toChartDisabled = false;
+                if (widgetData.msg == '1') {
+                    $scope.alerts = [];
+                    $scope.widgetData = widgetData.data;
+                    $scope.selects = angular.copy($scope.widgetData[0]);
+                } else {
+                    if (widgetData.msg != null) {
+                        $scope.alerts = [{msg: widgetData.msg, type: 'danger'}];
+                    }
+                }
+
+                var widget = {
+                    chart_type: "table",
+                    filters: [],
+                    groups: [],
+                    keys: [],
+                    selects: [],
+                    values: [{
+                        cols: []
+                    }
+                    ]
+                };
+                _.each($scope.widgetData[0], function (c) {
+                    widget.keys.push({
+                        col: c,
+                        type: "eq",
+                        values: []
+                    });
+                });
+
+                chartService.render($('#dataset_preview'), $scope.widgetData, widget, null, {myheight: 300});
+            });
+    };
 
     var cleanPreview = function () {
         $('#dataset_preview').html("");

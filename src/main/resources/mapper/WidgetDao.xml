@@ -20,7 +20,7 @@
             )
         ORDER BY widget_name
     </select>
-
+    <!--#{userId} = '${admin_user_id}' OR-->
     <select id="getWidgetListByType" resultType="org.cboard.pojo.DashboardWidget">
        SELECT
               widget_id     AS id,
@@ -30,7 +30,7 @@
               category_name AS categoryName,
               widget_type   AS type
          FROM dashboard_widget
-        WHERE (#{userId} = '${admin_user_id}' OR user_id = #{userId} AND widget_type=#{type} OR
+        WHERE ( user_id = #{userId} AND widget_type=#{type} OR
                 widget_id IN (SELECT res_id FROM dashboard_user_role ur LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id WHERE ur.user_id = #{userId} AND rr.res_type = 'widget')
             )
         ORDER BY widget_name

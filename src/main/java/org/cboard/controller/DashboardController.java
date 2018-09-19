@@ -95,6 +95,18 @@ public class DashboardController {
         return result;
     }
 
+    @RequestMapping(value = "/getDataForTest")
+    public DataProviderResult getDataForTest(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
+                                             @RequestParam(name = "query", required = false) String query){
+        Map<String, String> strParams = null;
+        if (query != null) {
+            JSONObject queryO = JSONObject.parseObject(query);
+            strParams = Maps.transformValues(queryO, Functions.toStringFunction());
+        }
+        DataProviderResult result = cachedDataProviderService.getDataForTest(datasourceId, strParams);
+        return result;
+    }
+
     @RequestMapping(value = "/getCachedData")
     public DataProviderResult getCachedData(@RequestParam(name = "datasourceId", required = false) Long datasourceId, @RequestParam(name = "query", required = false) String query, @RequestParam(name = "datasetId", required = false) Long datasetId, @RequestParam(name = "reload", required = false, defaultValue = "false") Boolean reload) {
         Map<String, String> strParams = null;

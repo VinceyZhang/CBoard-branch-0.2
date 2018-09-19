@@ -36,7 +36,9 @@
     "DATA_MANAGER_BOARD":"Data Manager Board",
     "DATA_MANAGER_DIR":"Data Manager Config",
     "DATA_VIEW":"Data View Config",
-    "DATA_MANAGER_BOARD_VIEW":"Dashboard"
+    "DATA_MANAGER_DIR":"Data Manager Config",
+    "DATA_MANAGER_BOARD_VIEW":"Dashboard",
+    "OFF_LINE_ANALYSIS":"Off Line Analysis Config"
   },
   "HEADER": {
     "SIGN_OUT": "SignOut"

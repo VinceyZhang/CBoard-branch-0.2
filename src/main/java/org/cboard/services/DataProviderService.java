@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -63,7 +64,7 @@ public class DataProviderService {
                 dataArray = dataProvider.getData(parameterMap, query);
             }
         } catch (Exception e) {
-            msg =  e.getMessage();
+            msg = e.getMessage();
         }
         return new DataProviderResult(dataArray, msg);
     }
@@ -85,13 +86,44 @@ public class DataProviderService {
                 dataArray = dataProvider.getData(parameterMap, query);
             }
         } catch (Exception e) {
-            msg =  e.getMessage();
+            msg = e.getMessage();
         }
         return new DataProviderResult(dataArray, msg);
     }
 
     protected Dataset getDataset(Long datasetId) {
         return new Dataset(datasetDao.getDataset(datasetId));
+    }
+
+    public DataProviderResult getDataForTest(Long datasourceId, Map<String, String> strParams) {
+        String[][] dataArray = null;
+        int resultCount = 0;
+        String msg = "1";
+
+        DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
+        String sql = strParams.get("sql");
+        //StringBuffer sbSql = new StringBuffer(query.get("sql"));
+        Map<String, String> query = new HashMap<String, String>();
+
+        if (datasource.getDbType().equals("mysql")) {
+            query.put("sql", sql + (" limit 0,1"));
+        } else if (datasource.getDbType().equals("sqlserver")) {
+            query.put("sql", sql.replaceFirst("select", "select top 1 "));
+        }
+        try {
+            JSONObject config = JSONObject.parseObject(datasource.getConfig());
+            DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
+            Map<String, String> parameterMap = Maps.transformValues(config, Functions.toStringFunction());
+            resultCount = dataProvider.resultCount(parameterMap, query);
+            if (resultCount > resultLimit) {
+                msg = "Cube result count is " + resultCount + ", greater than limit " + resultLimit;
+            } else {
+                dataArray = dataProvider.getData(parameterMap, query);
+            }
+        } catch (Exception e) {
+            msg = e.getMessage();
+        }
+        return new DataProviderResult(dataArray, msg);
     }
 
     protected class Dataset {

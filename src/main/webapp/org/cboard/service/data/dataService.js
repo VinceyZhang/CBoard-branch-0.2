@@ -21,6 +21,16 @@ cBoard.service('dataService', function ($http, updateService) {
         });
     };
 
+    this.getDataForTest = function (datasource, query, callback, fromCache) {
+        $http.post("dashboard/getDataForTest.do", {
+            datasourceId: datasource,
+            query: angular.toJson(query),
+            reload: fromCache ? false : true
+        }).success(function (response) {
+            callback(response);
+        });
+    };
+
     this.getDataByParams = function (datasource, query, params, pagesParams, datasetId, callback, fromCache) {
         $http.post("dashboard/getCachedDataByParams.do", {
             datasourceId: datasource,
