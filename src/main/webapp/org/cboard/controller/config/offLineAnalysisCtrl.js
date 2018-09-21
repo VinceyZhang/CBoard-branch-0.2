@@ -20,6 +20,12 @@ cBoard.controller('offLineAnalysisCtrl', function ($scope, $http, dataService, $
     var originalData = [];
     var updateUrl = "offLineAnalysis/updateAnalysis.do";
 
+
+    // $http.get("offLineAnalysis/getAnalysisResult.do").success(function (response) {
+    //     //$scope.datasourceList = response;
+    // });
+
+
     $http.get("dashboard/getDatasourceList.do").success(function (response) {
         $scope.datasourceList = response;
     });

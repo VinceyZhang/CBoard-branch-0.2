@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,6 +90,27 @@ public class DataProviderService {
             msg = e.getMessage();
         }
         return new DataProviderResult(dataArray, msg);
+    }
+
+    public ServiceStatus updateData(DashboardDatasource datasource, List<String> query) {
+        String[][] dataArray = null;
+        int resultCount = 0;
+        String msg = "1";
+
+        try {
+            JSONObject config = JSONObject.parseObject(datasource.getConfig());
+            DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
+            Map<String, String> parameterMap = Maps.transformValues(config, Functions.toStringFunction());
+
+            resultCount = dataProvider.updateData(parameterMap, query);
+
+        } catch (Exception e) {
+            msg = e.getMessage();
+        }
+        if (resultCount > 0) {
+            return new ServiceStatus(ServiceStatus.Status.Success, "更新数据表成功");
+        }
+        return new ServiceStatus(ServiceStatus.Status.Fail, msg);
     }
 
     protected Dataset getDataset(Long datasetId) {

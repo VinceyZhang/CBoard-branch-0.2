@@ -14,16 +14,16 @@ import org.cboard.dao.DatasetDao;
 import org.cboard.dao.DatasourceDao;
 import org.cboard.datasource.DataSourceEnum;
 import org.cboard.datasource.DataSourceHolder;
+import org.cboard.dto.DataProviderResult;
 import org.cboard.pojo.DashboardDataset;
+import org.cboard.pojo.DashboardDatasource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @Repository
@@ -34,7 +34,7 @@ public class OffLineAnalysisService {
     private DatasetDao datasetDao;
 
     @Autowired
-    private CachedDataProviderService cachedDataProviderService;
+    private DataProviderService dataProviderService;
 
     @Autowired
     private AnalysisDao analysisDao;
@@ -49,23 +49,84 @@ public class OffLineAnalysisService {
     @Value("${off_line_analysis_api}")
     private String analysisAPI;
 
+    @Value("${analysis_url}")
+    private String analysisUrl;
+
+    @Value("${analysis_username}")
+    private String analysisUsername;
+
+    @Value("${analysis_password}")
+    private String analysisPassword;
+
+    private DashboardDatasource getDynamicDatasource() {
+        DashboardDatasource datasource = new DashboardDatasource();
+        datasource.setType("jdbc");
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("driver", "com.mysql.jdbc.Driver");
+        params.put("jdbcurl", analysisUrl);
+        params.put("username", analysisUsername);
+        params.put("password", analysisPassword);
+        datasource.setConfig(JSONObject.toJSONString(params));
+        return datasource;
+    }
+
+    /**
+     * 更新离线分析日志表
+     *
+     * @param userId
+     * @param json
+     * @return
+     */
+    public ServiceStatus updateAnalysisResult(String userId, String json) {
+
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        String[] snArr = (String[]) jsonObject.get("sn");
+        DashboardDatasource datasource = getDynamicDatasource();
+        StringBuffer snSb = new StringBuffer();
+        List<String> query = new ArrayList<String>();
+        if (snArr.length > 0) {
+            for (String sn : snArr) {
+                snSb.append(sn + ',');
+            }
+            String snStr = snSb.substring(0, snSb.lastIndexOf(","));
+            query.add("update task_result set is_read = 1 where sn in(" + snStr);
+        }
+        return dataProviderService.updateData(datasource, query);
+
+    }
+
+    /**
+     * 获取离线分析结果日志
+     *
+     * @param userId
+     * @param json
+     * @return
+     */
+    public DataProviderResult getAnalysisResult(String userId, String json) {
+
+        List<DashboardDataset> datasetList = datasetDao.getDatasetList(userId);
+        DashboardDatasource datasource = getDynamicDatasource();
+        StringBuffer taskIds = new StringBuffer();
+        for (DashboardDataset dataset : datasetList) {
+            if (dataset.getTaskId() != null) {
+                taskIds.append(dataset.getTaskId() + ",");
+            }
+        }
+
+        if (taskIds.length() > 0) {
+            String taskParams = taskIds.substring(0, taskIds.lastIndexOf(","));
+            Map<String, String> query = new HashMap<String, String>();
+            query.put("sql", "SELECT * FROM TASK_RESULT WHERE IS_READ=0 AND TASKID IN (" + taskParams + ")");
+            return dataProviderService.getData(datasource, query);
+        }
+
+        return new DataProviderResult(null, "没有任何待执行的离线分析任务！");
+    }
+
     public ServiceStatus saveAnalysisParamInfo(String userId, String json) {
 
         JSONObject jsonObject = JSONObject.parseObject(json);
         DashboardDataset dataset = new DashboardDataset();
-
-//        //测试事务
-//        DashboardDataset dataset1=new DashboardDataset();
-//        dataset1.setId(null);
-//        dataset1.setUserId("001");
-//        datasetDao.save(dataset1);
-//
-//        DashboardDatasource datasource=new DashboardDatasource();
-//        datasource.setUserId("00112");
-//        datasourceDao.save(datasource);
-//
-//        String str=null;
-//        str.toString();
 
         //设置结果sql
         JSONObject configObject = JSONObject.parseObject(jsonObject.getString("config"));
@@ -84,6 +145,7 @@ public class OffLineAnalysisService {
 
         //保存离线分析数据到本系统数据库
         dataset.setUserId(userId);
+        dataset.setTaskId(taskId.toString());
         dataset.setName(jsonObject.getString("name"));
         dataset.setData(jsonObject.getString("data"));
         dataset.setCategoryName(jsonObject.getString("categoryName"));
@@ -205,8 +267,18 @@ public class OffLineAnalysisService {
 
         dataMap.put("dbResultLink", dbResultLinkMap);
         dataMap.put("databaseResult", datasourceTo.get("name"));
+
         //设置count语句
-        dataMap.put("sqlCount", "select count(*) from (" + config.getString("sqlSelect").trim() + ") a");
+        String sql = config.getString("sqlSelect").trim();
+        if (datasourceFrom.getString("dbType").equals("sqlserver")) {
+
+            dataMap.put("sqlCount", "select count(*) from ("
+                    + sql.replaceAll("order\\s+\\S+\\s+\\S+", "")
+                    + ") a");
+        } else if (datasourceFrom.getString("dbType").equals("mysql")) {
+            dataMap.put("sqlCount", "select count(*) from (" + sql + ") a");
+        }
+
 
         try {
             //调用离线分析保存接口

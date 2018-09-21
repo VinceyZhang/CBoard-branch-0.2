@@ -35,6 +35,11 @@ public class OffLineAnalysisController {
     @Autowired
     private DataManagerService dataManagerService;
 
+    @RequestMapping(value = "/getAnalysisResult")
+    public DataProviderResult getAnalysisResult(@RequestParam(name = "json",required = false) String json) {
+        String userId = authenticationService.getCurrentUser().getUserId();
+        return offLineAnalysisService.getAnalysisResult(userId, json);
+    }
 
     @RequestMapping(value = "/getTablesByDBName")
     public DataProviderResult getTablesByDBName(@RequestParam(name = "datasourceId") Long datasourceId,@RequestParam(name = "dbName") String dbName) {

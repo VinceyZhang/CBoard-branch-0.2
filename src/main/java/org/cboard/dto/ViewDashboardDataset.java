@@ -16,6 +16,7 @@ public class ViewDashboardDataset {
     private String name;
     private String categoryName;
     private Integer type;
+    private String taskId;
     private Map<String,Object> config;
     private Map<String, Object> data;
 
@@ -28,14 +29,15 @@ public class ViewDashboardDataset {
         }
     };
 
-    public ViewDashboardDataset(DashboardDataset dataManager) {
-        this.id = dataManager.getId();
-        this.userId = dataManager.getUserId();
-        this.name = dataManager.getName();
-        this.categoryName = dataManager.getCategoryName();
-        this.data = JSONObject.parseObject(dataManager.getData());
-        this.type = dataManager.getType();
-        this.config=JSONObject.parseObject(dataManager.getConfig());
+    public ViewDashboardDataset(DashboardDataset dataset) {
+        this.id = dataset.getId();
+        this.userId = dataset.getUserId();
+        this.name = dataset.getName();
+        this.categoryName = dataset.getCategoryName();
+        this.data = JSONObject.parseObject(dataset.getData());
+        this.type = dataset.getType();
+        this.taskId=dataset.getTaskId();
+        this.config=JSONObject.parseObject(dataset.getConfig());
     }
 
     public Map<String, Object> getConfig() {

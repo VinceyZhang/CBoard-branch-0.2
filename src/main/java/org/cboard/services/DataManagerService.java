@@ -206,7 +206,7 @@ public class DataManagerService extends DataProviderService {
             }
 
 
-            dataProvider.insertData(parameterMap, query);
+            dataProvider.updateData(parameterMap, query);
         } catch (Exception e) {
             msg = e.getMessage();
             return new ServiceStatus(ServiceStatus.Status.Fail, msg);

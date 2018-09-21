@@ -80,7 +80,7 @@ public class JdbcDataProvider extends DataProvider {
         return list.toArray(new String[][]{});
     }
 
-    public int insertData(Map<String, String> dataSource, List<String> query) throws Exception {
+    public int updateData(Map<String, String> dataSource, List<String> query) throws Exception {
 
         Connection con = getConnection(dataSource);
 

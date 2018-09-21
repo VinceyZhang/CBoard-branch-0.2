@@ -10,5 +10,5 @@ public abstract class DataProvider {
 
     abstract public String[][] getData(Map<String, String> dataSource, Map<String, String> query) throws Exception;
     abstract public int resultCount(Map<String, String> dataSource, Map<String, String> query) throws Exception;
-    abstract public int insertData(Map<String, String> dataSource, List<String> query)throws Exception;
+    abstract public int updateData(Map<String, String> dataSource, List<String> query)throws Exception;
 }

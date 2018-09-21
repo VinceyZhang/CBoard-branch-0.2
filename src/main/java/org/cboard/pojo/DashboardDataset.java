@@ -12,6 +12,15 @@ public class DashboardDataset {
     private String data;
     private Integer type;
     private String config;
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 
     public String getConfig() {
         return config;
