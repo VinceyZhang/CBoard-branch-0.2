@@ -256,6 +256,14 @@
             <version>3.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.birt.runtime.3_7_1</groupId>
+            <artifactId>org.apache.xerces</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
+
+
     </dependencies>
 
     <build>

@@ -23,11 +23,71 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
         });
     }
 
+    $scope.exportData = function (datasetId, keys, name) {
+
+        var cps = $scope.colParams;
+        var cols = $scope.params;
+        var ps = {};
+        for (var i in cps) {
+            if (cps[i] != null && cps[i] != "") {
+                ps[cols[i]] = cps[i];
+            }
+        }
+        if (ps != null) {
+            ps = angular.toJson(ps);
+        }
+
+        $http.post("dashboard/exportData.do", {
+            "datasetId": datasetId,
+            "keys": angular.toJson(keys),
+            "params": ps,
+            "name": name
+        }).success(function (res) {
+            $scope.files = [];
+            if (res.obj) {
+                $scope.files = res.obj;
+                $('#downloadModal').modal('show');
+            }
+        });
+
+    };
+
+    $scope.deleteFile = function (name) {
+        $http.post("dashboard/deleteFile.do", {
+            "name": name
+        }).success(function (res) {
+            if (res.status == "1") {
+                for (var i = 0; i < $scope.files.length; i++) {
+                    if ($scope.files[i].name == name) {
+                        $scope.files.splice(i, 1);
+                    }
+                }
+
+
+            } else {
+                alert(res.msg);
+            }
+        });
+
+    };
+
+    $scope.showExport=function(){
+        $http.post("dashboard/getFiles.do").success(function (res) {
+            $scope.files = [];
+            if (res.obj) {
+                $scope.files = res.obj;
+                $('#downloadModal').modal('show');
+            }
+        });
+        $('#downloadModal').modal('show');
+    };
+
+
     $scope.clickSearch = function () {
         $scope.curPage = 1;
         $scope.pagesParams = {"curPage": $scope.curPage, "pageSize": 10};
         $scope.load();
-    }
+    };
 
     $scope.goPage = function (p) {
         $scope.curPage = p;
@@ -42,7 +102,6 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
         var end = 0;
         $scope.pages = [];
 
-
         if (curPage < 10) {
             begin = 1;
             end = curPage + 5 >= totalPage ? totalPage : 10;
@@ -50,7 +109,6 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
             begin = curPage - 4;
             end = curPage + 5 >= totalPage ? totalPage : curPage + 5;
         }
-
 
         for (var i = begin; i <= end; i++) {
             $scope.pages.push(i);

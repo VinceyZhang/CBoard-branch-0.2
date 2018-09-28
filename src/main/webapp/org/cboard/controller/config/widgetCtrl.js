@@ -117,7 +117,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
     $scope.filterSelect = {};
     $scope.verify = {widgetName: true};
 
-    $http.get("dashboard/getDatasetList.do").success(function (response) {
+    $http.post("dashboard/getDatasetListByType.do",{type: 0}).success(function (response) {
         $scope.datasetList = response;
     });
 
@@ -142,7 +142,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
     };
 
     var getWidgetList = function (callback) {
-        $http.get("dashboard/getWidgetList.do").success(function (response) {
+        $http.post("dashboard/getWidgetListByType.do", {json: angular.toJson({"type": 0})}).success(function (response) {
             $scope.widgetList = response;
             if (callback) { callback(); }
             $scope.searchNode();
@@ -916,7 +916,8 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                 dsrName = _.find($scope.datasourceList, function (obj) {
                     return obj.id == ds.data.datasource
                 }).name;
-            } else if (w.data.datasource) {
+            } else
+            if (w.data.datasource) {
                 _.find($scope.datasourceList, function (obj) {
                     return obj.id == w.data.datasource
                 }).name

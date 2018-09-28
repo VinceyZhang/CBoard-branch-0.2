@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by yfyuan on 2016/8/26.
  */
-public class DataProviderResult implements Serializable{
+public class DataProviderResult implements Serializable {
 
     private String[][] data;
     private String msg;
@@ -13,6 +13,10 @@ public class DataProviderResult implements Serializable{
     private Integer curPage;
     private Integer pageSize;
     private Integer totalPage;
+    private Object obj;
+
+    public DataProviderResult() {
+    }
 
     public DataProviderResult(String[][] data, String msg) {
         this.data = data;
@@ -23,6 +27,14 @@ public class DataProviderResult implements Serializable{
         this.data = data;
         this.msg = msg;
         this.resultCount = resultCount;
+    }
+
+    public Object getObj() {
+        return obj;
+    }
+
+    public void setObj(Object obj) {
+        this.obj = obj;
     }
 
     public Integer getCurPage() {

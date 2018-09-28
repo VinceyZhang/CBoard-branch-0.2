@@ -10,7 +10,7 @@
         SELECT board_id id,user_id userId,board_name name,layout_json layout,category_id categoryId,board_type type FROM dashboard_board WHERE board_type=1 AND board_id = #{0}
     </select>
 
-    <!--#{user_id} = '${admin_user_id}' AND 只让管理员查看条件-->
+    <!--只让管理员查看条件-->
     <select id="getBoardListByType" resultType="org.cboard.pojo.DashboardBoard">
         SELECT
                board_id        AS id,
@@ -22,7 +22,7 @@
                a.board_type    AS type
           FROM dashboard_board a
           LEFT JOIN dashboard_category b ON a.category_id = b.category_id
-         WHERE  a.user_id = #{user_id} AND a.board_type=#{board_type} OR a.board_id IN (
+         WHERE #{user_id} = '${admin_user_id}' OR  a.user_id = #{user_id} AND a.board_type=#{board_type} OR a.board_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
@@ -30,7 +30,7 @@
           ) ORDER BY a.board_name
     </select>
 
-    <!--#{0} = '${admin_user_id}' OR 取消只让管理员查看-->
+    <!-- 取消只让管理员查看-->
     <select id="getBoardList" resultType="org.cboard.pojo.DashboardBoard">
         SELECT
                board_id        AS id,
@@ -42,7 +42,7 @@
                a.board_type    AS type
           FROM dashboard_board a
           LEFT JOIN dashboard_category b ON a.category_id = b.category_id
-         WHERE  a.user_id = #{0}  OR a.board_id IN (
+         WHERE #{0} = '${admin_user_id}' OR  a.user_id = #{0}  OR a.board_id IN (
              SELECT res_id
                FROM dashboard_user_role ur
                LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id

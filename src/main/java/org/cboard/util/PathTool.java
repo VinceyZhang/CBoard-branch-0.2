@@ -12,4 +12,10 @@ public class PathTool {
         HttpServletRequest request=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         return  request.getSession().getServletContext().getRealPath("/");
     }
+
+    public static String getContextPath(){
+        HttpServletRequest request=((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        return   request.getScheme()+"://"+request.getServerName()+":"+
+                request.getServerPort()+request.getContextPath()+"/";
+    }
 }

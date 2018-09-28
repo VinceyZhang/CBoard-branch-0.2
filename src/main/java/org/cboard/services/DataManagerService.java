@@ -1,10 +1,10 @@
 package org.cboard.services;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.*;
 import org.cboard.dao.DataManagerDao;
 import org.cboard.dao.DatasetDao;
 import org.cboard.dao.DatasourceDao;
@@ -14,15 +14,15 @@ import org.cboard.dto.DataProviderResult;
 import org.cboard.dto.DataResult;
 import org.cboard.pojo.DashboardDataManager;
 import org.cboard.pojo.DashboardDatasource;
-import org.cboard.util.HandleExcel;
+import org.cboard.util.ExcelUtil;
 import org.cboard.util.PageHelper;
 import org.cboard.util.PathTool;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.*;
 
 
@@ -37,6 +37,9 @@ public class DataManagerService extends DataProviderService {
 
     @Autowired
     DataManagerDao dataManagerDao;
+
+    @Autowired
+    AuthenticationService authenticationService;
 
     @Autowired
     CachedDataProviderService cachedDataProviderService;
@@ -113,7 +116,7 @@ public class DataManagerService extends DataProviderService {
             file.transferTo(saveFile);
             String absolutePath = saveFile.getAbsolutePath();
             // 解析excel
-            List<Map<String, String>> readExcel = HandleExcel.readExcel(absolutePath);
+            List<Map<String, String>> readExcel = ExcelUtil.readExcel(absolutePath);
 
             Dataset dataset = getDataset(datasetId);
             datasourceId = dataset.getDatasourceId();
@@ -451,4 +454,140 @@ public class DataManagerService extends DataProviderService {
         return result;
     }
 
+    public DataProviderResult exportData(Long datasetId, String[] columns, String params, String widgetName) {
+
+        DataProviderResult reResult = new DataProviderResult();
+        Long datasourceId = null;
+        Map<String, String> query = null;
+        if (datasetId != null) {
+            Dataset dataset = getDataset(datasetId);
+            query = dataset.getQuery();
+            datasourceId = dataset.getDatasourceId();
+        }
+        Map<String, String> paramsMap = null;
+        if (params != null) {
+            JSONObject paObject = JSONObject.parseObject(params);
+            paramsMap = Maps.transformValues(paObject, Functions.toStringFunction());
+            StringBuffer sql = new StringBuffer(query.get("sql"));
+            if (paramsMap != null && paramsMap.size() > 0) {
+                sql.append(" where 1=1 ");
+                Iterator<Map.Entry<String, String>> iterator = paramsMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, String> entry = iterator.next();
+                    sql.append(" and ");
+                    sql.append(entry.getKey() + " = \'" + entry.getValue() + "\' ");
+
+                }
+            }
+            //拼接条件
+            query = new HashMap<String, String>();
+            query.put("sql", sql.toString());
+        }
+        //拼接显示的列
+        if (columns != null && columns.length > 0) {
+            StringBuffer sql = new StringBuffer(query.get("sql"));
+            StringBuffer sqlHead = new StringBuffer("select ");
+            for (String col : columns) {
+                sqlHead.append(col + ",");
+            }
+            sqlHead.setCharAt(sqlHead.lastIndexOf(","), ' ');
+            sqlHead.append(" from (");
+            query.put("sql", sqlHead + sql.toString() + ") a");
+        }
+
+        DashboardDatasource datasource = datasourceDao.getDatasource(datasourceId);
+        JSONObject config = JSONObject.parseObject(datasource.getConfig());
+        Map<String, String> parameterMap = Maps.transformValues(config, Functions.toStringFunction());
+        Integer resultCount = null;
+        try {
+            PageHelper pageHelper = new PageHelper();
+            pageHelper.setCurPage(1);
+            pageHelper.setPageSize(10);
+            DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
+            resultCount = dataProvider.resultCount(parameterMap, query);
+            pageHelper.setTotalCount(resultCount);
+            pageHelper.setTotalPage(resultCount);
+
+            String userId = authenticationService.getCurrentUser().getUserId();
+            File dir = new File(PathTool.getRealPath() + "/download/" + userId);
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+
+            //导出数据
+            for (int i = 1; i <= pageHelper.getTotalPage(); i++) {
+                StringBuffer sbSql = new StringBuffer(query.get("sql"));
+                sbSql.append(" limit " + (pageHelper.getCurPage() - 1) * pageHelper.getPageSize() + "," + pageHelper.getPageSize());
+                Map<String, String> q = new HashMap<String, String>();
+                q.put("sql", sbSql.toString());
+                DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, null);
+                //1.创建工作簿
+                HSSFWorkbook workBook = ExcelUtil.exportExcel(result.getData(), columns, i + "");
+                int begin = (pageHelper.getCurPage() - 1) * pageHelper.getPageSize() + 1;
+                int end = begin - 1 + pageHelper.getPageSize();
+                File file = new File(dir.getPath(), widgetName + "第" + begin + "-" + end + "条.xls");
+                FileOutputStream outputStream = new FileOutputStream(file);
+                workBook.write(outputStream);
+                outputStream.close();
+                pageHelper.setCurPage(pageHelper.getCurPage() + 1);
+            }
+
+            //列出所有文件
+            List<Map<String, String>> downFiles = new ArrayList<Map<String, String>>();
+            String[] files = dir.list();
+            for (String file : files) {
+                Map<String, String> map = new HashMap<String, String>();
+                String basePath = PathTool.getContextPath();
+                map.put("addr", basePath + "download/" + userId + "/" + file);
+                map.put("name", file);
+                downFiles.add(map);
+            }
+
+            reResult.setObj(downFiles);
+            reResult.setMsg("success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            reResult.setMsg("错误：" + e.getMessage());
+        } finally {
+
+            return reResult;
+        }
+    }
+
+
+    public ServiceStatus deleteFile(String name) {
+        File file = new File(PathTool.getRealPath() + "/download/" + authenticationService.getCurrentUser().getUserId() + "/" + name);
+        if (!file.exists()) {
+            return new ServiceStatus(ServiceStatus.Status.Fail, "文件已删除！");
+        } else {
+            file.delete();
+            return new ServiceStatus(ServiceStatus.Status.Success, "文件删除成功！");
+        }
+    }
+
+    public DataProviderResult getFiles() {
+        String userId = authenticationService.getCurrentUser().getUserId();
+        File dir = new File(PathTool.getRealPath() + "/download/" + userId);
+        //列出所有文件
+        List<Map<String, String>> downFiles = new ArrayList<Map<String, String>>();
+        String[] files = dir.list();
+        for (String file : files) {
+            Map<String, String> map = new HashMap<String, String>();
+            String basePath = PathTool.getContextPath();
+            map.put("addr", basePath + "download/" + userId + "/" + file);
+            map.put("name", file);
+            downFiles.add(map);
+        }
+        DataProviderResult result=new DataProviderResult();
+        if(downFiles.size()>0){
+            result.setMsg("加载文件列表成功！");
+            result.setObj(downFiles);
+        }else{
+            result.setMsg("没有任何导出的列表！");
+        }
+
+
+        return result;
+    }
 }

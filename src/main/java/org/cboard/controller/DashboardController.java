@@ -1,6 +1,7 @@
 package org.cboard.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
@@ -11,19 +12,12 @@ import org.cboard.dataprovider.DataProviderViewManager;
 import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
-import org.cboard.util.HandleExcel;
-import org.cboard.util.PathTool;
-import org.cboard.util.SqlTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,7 +91,7 @@ public class DashboardController {
 
     @RequestMapping(value = "/getDataForTest")
     public DataProviderResult getDataForTest(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
-                                             @RequestParam(name = "query", required = false) String query){
+                                             @RequestParam(name = "query", required = false) String query) {
         Map<String, String> strParams = null;
         if (query != null) {
             JSONObject queryO = JSONObject.parseObject(query);
@@ -378,7 +372,37 @@ public class DashboardController {
     public ServiceStatus importData(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
                                     @RequestParam(name = "datasetId", required = false) Long datasetId,
                                     @RequestParam(value = "file", required = false) MultipartFile file) {
-        return dataManagerService.importData(datasourceId,datasetId,file);
+        return dataManagerService.importData(datasourceId, datasetId, file);
+
+    }
+
+    @RequestMapping(value = "/exportData")
+    public DataProviderResult exportData(@RequestParam(name = "datasetId", required = false) Long datasetId,
+                                         @RequestParam(name = "keys", required = false) String keys,
+                                         @RequestParam(name = "params", required = false) String params,
+                                         @RequestParam(value = "name", required = false) String name) {
+
+        JSONArray jsonArray = JSONArray.parseArray(keys);
+        String[] columns = new String[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            columns[i] = ((JSONObject) jsonArray.get(i)).get("col").toString();
+        }
+        return dataManagerService.exportData(datasetId, columns, params, name);
+
+    }
+
+    @RequestMapping(value = "/getFiles")
+    public DataProviderResult getFiles() {
+
+
+        return dataManagerService.getFiles();
+
+    }
+
+    @RequestMapping(value = "/deleteFile")
+    public ServiceStatus deleteFile(
+            @RequestParam(value = "name", required = false) String name) {
+        return dataManagerService.deleteFile(name);
 
     }
 
