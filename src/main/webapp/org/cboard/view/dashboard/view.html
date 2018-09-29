@@ -93,19 +93,27 @@
                                 </div>
                                 <div class="modal-body">
                                     <div style="height:500px;overflow:scroll;">
+                                        <button class="btn btn-danger" ng-click="deleteFiles(selectFiles)">批量删除</button>
+                                        <a class="btn btn-danger" href="javascript:void(0);"  ng-click="downloadFiles(selectFiles)">批量下载</a>
                                         <table class="table table-hover">
                                             <thead>
                                             <tr>
+                                                <td><input type="checkbox" ng-model="allFile"
+                                                           ng-click="selectAllFile(allFile)">全选
+                                                </td>
                                                 <td>文件名</td>
                                                 <td>操作</td>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr ng-repeat="file in files">
+                                                <td><input type="checkbox" ng-checked="allFile" value="{{file.name}}"
+                                                           ng-click="selectSingleFile($event,file)">
+                                                </td>
                                                 <td>{{file.name}}</td>
                                                 <td><a class="btn btn-info" ng-href="{{file.addr}}">下载</a>&nbsp;&nbsp;&nbsp;&nbsp;
                                                     <button class="btn btn-danger"
-                                                            ng-click="deleteFile(file.name)">删除
+                                                            ng-click="clickDelete(file.name)">删除
                                                     </button>
                                                 </td>
                                             </tr>

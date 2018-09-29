@@ -1,11 +1,9 @@
 package org.cboard.util;
 
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,20 +37,10 @@ public class ExcelUtil {
             // 获取文件的后缀名 \\ .是特殊字符
             String[] split = file.getName().split("\\.");
             System.out.println(split[1]);
-            Workbook wb;
-            // 根据文件后缀（xls/xlsx）进行判断
-            if ("xls".equals(split[1])) {
-                // //获取文件流对象
-                FileInputStream inputStream = new FileInputStream(file);
-                wb = new HSSFWorkbook(inputStream);
-            } else if ("xlsx".equals(split[1])) {
-                FileInputStream inputStream = new FileInputStream(file);
-                wb = new XSSFWorkbook(inputStream);
-            } else {
-                System.out.println("文件类型错误");
-                return null;
-            }
 
+            FileInputStream inputStream = new FileInputStream(file);
+            // 根据文件后缀（xls/xlsx）进行判断
+            Workbook wb = WorkbookFactory.create(inputStream);
             // 开始解析
             Sheet sheet = wb.getSheetAt(0);
             // 第一行是列名，所以从第二行开始遍历
@@ -94,31 +82,33 @@ public class ExcelUtil {
     }
 
     /**
-     * 将用户的信息导入到excel文件中去
+     * 导出excel文件
      *
      * @param array
      * @param columns 列名
      */
-    public static HSSFWorkbook exportExcel(String[][] array, String[] columns, String sheetName) {
+    public static Workbook exportExcel(String[][] array, String[] columns, String sheetName) {
         try {
+
             //1.创建工作簿
             HSSFWorkbook workbook = new HSSFWorkbook();
+
             //1.2头标题样式
-            HSSFCellStyle headStyle = createCellStyle(workbook, (short) 16);
+            CellStyle headStyle = createCellStyle(workbook, (short) 16);
             //1.3列标题样式
-            HSSFCellStyle colStyle = createCellStyle(workbook, (short) 13);
+            CellStyle colStyle = createCellStyle(workbook, (short) 13);
 
             //2.创建工作表
-            HSSFSheet sheet = workbook.createSheet(sheetName);
+            Sheet sheet = workbook.createSheet(sheetName);
 
             //设置默认列宽
             sheet.setDefaultColumnWidth(25);
             //3.创建行
             //3.1创建头标题行;并且设置头标题
-            HSSFRow row =  sheet.createRow(0);
+            Row row = sheet.createRow(0);
 
             //声明列对象
-            HSSFCell cell = null;
+            Cell cell = null;
             //创建标题
 
             for (int i = 0; i < columns.length; i++) {

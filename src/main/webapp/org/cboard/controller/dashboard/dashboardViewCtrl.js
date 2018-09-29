@@ -8,6 +8,27 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
     $scope.params = [];
     $scope.colParams = [];
 
+    $scope.allFile = false;
+    $scope.selectFiles = [];
+
+    $scope.selectAllFile = function (m) {
+
+        if (m) {
+            for (var i in $scope.files) {
+                $scope.selectFiles.push({"name": $scope.files[i].name,"addr":$scope.files[i].addr});
+            }
+        }
+    };
+
+    $scope.selectSingleFile = function ($event, file) {
+        if ($event.target.checked) {
+            $scope.selectFiles.push(file);
+        } else {
+            var index = $scope.selectFiles.indexOf(file);
+            $scope.selectFiles.splice(index, 1);
+        }
+    }
+
 
     $scope.importData = function () {
         $("#importData").ajaxSubmit({
@@ -52,18 +73,71 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
 
     };
 
-    $scope.deleteFile = function (name) {
+    $scope.clickDelete = function (name) {
+        var delName = [];
+        delName.push({"name": name});
+        $scope.deleteFiles(delName);
+    };
+
+    $scope.downloadFiles = function (names) {
+        for (var i = 0; i < names.length; i++) {
+            var linkElement = document.createElement('a');
+            try {
+                //直接a标签点击下载
+                var url = names[i].addr;
+                linkElement.setAttribute('href', url);
+                linkElement.setAttribute("download", names[i].name);
+                var clickEvent = new MouseEvent("click", {"view": window, "bubbles": true, "cancelable": false});
+                linkElement.dispatchEvent(clickEvent);
+            } catch (ex) {
+                console.log(ex);
+            }
+
+            //todo 调用后台接口进行下载，excel文件乱码，且文件名变成类似guid，而非预期中文名字
+            // //location.href = "dashboard/download.do?filename=" + names[i].name;
+            // $http.get("dashboard/download.do", {
+            //     params: {
+            //         "filename": names[i].name
+            //     }
+            // }).success(function (data, status, headers) {
+            //     headers = headers();
+            //     var contentType = headers['content-type'];
+            //     var linkElement = document.createElement('a');
+            //     try {
+            //         var blob = new Blob([data], {type: "application/vnd.ms-excel"});
+            //         var url = window.URL.createObjectURL(blob);
+            //         linkElement.setAttribute('href', url);
+            //         linkElement.setAttribute("download", name);
+            //         var clickEvent = new MouseEvent("click", {"view": window, "bubbles": true, "cancelable": false});
+            //         linkElement.dispatchEvent(clickEvent);
+            //     } catch (ex) {
+            //         console.log(ex);
+            //     }
+            //
+            //
+            // });
+        }
+
+
+    };
+
+    $scope.deleteFiles = function (name) {
         $http.post("dashboard/deleteFile.do", {
-            "name": name
+            "name": angular.toJson(name)
         }).success(function (res) {
             if (res.status == "1") {
-                for (var i = 0; i < $scope.files.length; i++) {
-                    if ($scope.files[i].name == name) {
-                        $scope.files.splice(i, 1);
+
+                for (var i = 0; i < name.length; i++) {
+                    var isDel = false;
+                    for (var j = 0; j < $scope.files.length; j++) {
+                        if ($scope.files[j].name == name[i].name) {
+                            $scope.files.splice(j, 1);
+                            $scope.selectFiles.splice(i, 1);
+                            i--;
+                            break;
+                        }
                     }
                 }
-
-
             } else {
                 alert(res.msg);
             }
@@ -71,7 +145,7 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
 
     };
 
-    $scope.showExport=function(){
+    $scope.showExport = function () {
         $http.post("dashboard/getFiles.do").success(function (res) {
             $scope.files = [];
             if (res.obj) {

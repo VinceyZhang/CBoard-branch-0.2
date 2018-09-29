@@ -1,10 +1,13 @@
 package org.cboard.services;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.cboard.dao.DataManagerDao;
 import org.cboard.dao.DatasetDao;
 import org.cboard.dao.DatasourceDao;
@@ -522,7 +525,7 @@ public class DataManagerService extends DataProviderService {
                 q.put("sql", sbSql.toString());
                 DataProviderResult result = cachedDataProviderService.getData(datasourceId, q, null);
                 //1.创建工作簿
-                HSSFWorkbook workBook = ExcelUtil.exportExcel(result.getData(), columns, i + "");
+                Workbook workBook = ExcelUtil.exportExcel(result.getData(), columns, i + "");
                 int begin = (pageHelper.getCurPage() - 1) * pageHelper.getPageSize() + 1;
                 int end = begin - 1 + pageHelper.getPageSize();
                 File file = new File(dir.getPath(), widgetName + "第" + begin + "-" + end + "条.xls");
@@ -557,13 +560,20 @@ public class DataManagerService extends DataProviderService {
 
 
     public ServiceStatus deleteFile(String name) {
-        File file = new File(PathTool.getRealPath() + "/download/" + authenticationService.getCurrentUser().getUserId() + "/" + name);
-        if (!file.exists()) {
-            return new ServiceStatus(ServiceStatus.Status.Fail, "文件已删除！");
-        } else {
+        JSONArray jsonArray = JSON.parseArray(name);
+
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject object = jsonArray.getJSONObject(i);
+            String fileName = object.getString("name");
+            File file = new File(PathTool.getRealPath() + "/download/" + authenticationService.getCurrentUser().getUserId() + "/" + fileName);
+            if (!file.exists()) {
+                return new ServiceStatus(ServiceStatus.Status.Fail, "文件" + fileName + "不存在，删除任务停止！");
+            }
             file.delete();
-            return new ServiceStatus(ServiceStatus.Status.Success, "文件删除成功！");
+
         }
+        return new ServiceStatus(ServiceStatus.Status.Success, "所选文件删除成功！");
     }
 
     public DataProviderResult getFiles() {
@@ -579,11 +589,11 @@ public class DataManagerService extends DataProviderService {
             map.put("name", file);
             downFiles.add(map);
         }
-        DataProviderResult result=new DataProviderResult();
-        if(downFiles.size()>0){
+        DataProviderResult result = new DataProviderResult();
+        if (downFiles.size() > 0) {
             result.setMsg("加载文件列表成功！");
             result.setObj(downFiles);
-        }else{
+        } else {
             result.setMsg("没有任何导出的列表！");
         }
 

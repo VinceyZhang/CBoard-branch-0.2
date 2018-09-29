@@ -6,18 +6,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.cboard.dao.*;
 import org.cboard.dataprovider.DataProviderManager;
 import org.cboard.dataprovider.DataProviderViewManager;
 import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
+import org.cboard.util.PathTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +121,7 @@ public class DashboardController {
         return result;
     }
 
-    @RequestMapping(value = "/getCachedDataByParams")
+    @RequestMapping(value = "/getCachedDataByParams", method = RequestMethod.POST)
     public DataProviderResult getCachedDataByParams(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
                                                     @RequestParam(name = "query", required = false) String query,
                                                     @RequestParam(name = "datasetId", required = false) Long datasetId,
@@ -391,6 +400,42 @@ public class DashboardController {
 
     }
 
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    public void download(@RequestParam(value = "filename") String filename,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
+        //模拟文件，myfile.txt为需要下载的文件
+        String userId = authenticationService.getCurrentUser().getUserId();
+        String path = PathTool.getRealPath() + "download\\" + userId + "\\" + filename;
+
+        try {//获取输入流
+            InputStream bis = new BufferedInputStream(new FileInputStream(new File(path)));
+            Workbook workbook = WorkbookFactory.create(bis);
+            if (workbook == null) {
+                return;
+            }
+            String agent = request.getHeader("USER-AGENT").toLowerCase();
+            response.setContentType("application/vnd.ms-excel");
+
+             String codedFileName = java.net.URLEncoder.encode(filename, "UTF-8");
+            if (agent.contains("firefox")) {                //火狐浏览器特殊处理
+                response.setCharacterEncoding("utf-8");
+                response.setHeader("content-disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+            } else {
+                response.setCharacterEncoding("utf-8");
+                response.setHeader("content-disposition", "attachment;filename=" + codedFileName);
+            }
+
+
+            BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+
+            workbook.write(response.getOutputStream());
+            out.close();
+        } catch (Exception e) {
+
+        }
+    }
+
     @RequestMapping(value = "/getFiles")
     public DataProviderResult getFiles() {
 
@@ -400,8 +445,7 @@ public class DashboardController {
     }
 
     @RequestMapping(value = "/deleteFile")
-    public ServiceStatus deleteFile(
-            @RequestParam(value = "name", required = false) String name) {
+    public ServiceStatus deleteFile(@RequestParam(value = "name", required = false) String name) {
         return dataManagerService.deleteFile(name);
 
     }
