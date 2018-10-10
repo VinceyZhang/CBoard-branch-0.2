@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.http.HttpEntity;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -16,17 +17,16 @@ import org.cboard.dto.*;
 import org.cboard.pojo.*;
 import org.cboard.services.*;
 import org.cboard.util.PathTool;
+import org.cboard.util.TransferTool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,29 +121,20 @@ public class DashboardController {
         return result;
     }
 
-    @RequestMapping(value = "/getCachedDataByParams", method = RequestMethod.POST)
-    public DataProviderResult getCachedDataByParams(@RequestParam(name = "datasourceId", required = false) Long datasourceId,
-                                                    @RequestParam(name = "query", required = false) String query,
-                                                    @RequestParam(name = "datasetId", required = false) Long datasetId,
-                                                    @RequestParam(name = "params", required = false) String params,
-                                                    @RequestParam(name = "pagesParams", required = false) String pagesParams) {
-        Map<String, String> strParams = null;
-        if (query != null) {
+    @RequestMapping(value = "/getDataByParams", method = RequestMethod.POST)
+    public DataProviderResult getDataByParams(@RequestParam(name = "datasetId", required = false) Long datasetId,
+                                              @RequestParam(name = "params", required = false) String params,
+                                              @RequestParam(name = "pagesParams", required = false) String pagesParams) {
 
-
-            JSONObject queryO = JSONObject.parseObject(query);
-            strParams = Maps.transformValues(queryO, Functions.toStringFunction());
-        }
-        DataProviderResult result = dataManagerService.getData(datasourceId, strParams, params, pagesParams, datasetId);
-
+        DataProviderResult result = dataManagerService.getData(params, pagesParams, datasetId);
         return result;
     }
+
 
     @RequestMapping(value = "/getDatasourceList")
     public List<ViewDashboardDatasource> getDatasourceList() {
 
         String userid = authenticationService.getCurrentUser().getUserId();
-
         List<DashboardDatasource> list = datasourceDao.getDatasourceList(userid);
         return Lists.transform(list, ViewDashboardDatasource.TO);
     }
@@ -417,7 +408,7 @@ public class DashboardController {
             String agent = request.getHeader("USER-AGENT").toLowerCase();
             response.setContentType("application/vnd.ms-excel");
 
-             String codedFileName = java.net.URLEncoder.encode(filename, "UTF-8");
+            String codedFileName = java.net.URLEncoder.encode(filename, "UTF-8");
             if (agent.contains("firefox")) {                //火狐浏览器特殊处理
                 response.setCharacterEncoding("utf-8");
                 response.setHeader("content-disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));

@@ -31,14 +31,12 @@ cBoard.service('dataService', function ($http, updateService) {
         });
     };
 
-    this.getDataByParams = function (datasource, query, params, pagesParams, datasetId, callback, fromCache) {
-        $http.post("dashboard/getCachedDataByParams.do", {
-            datasourceId: datasource,
-            query: angular.toJson(query),
+    this.getDataByParams = function (params, pagesParams, datasetId, callback) {
+
+        $http.post("dashboard/getDataByParams.do", {
             datasetId: datasetId,
             params: params,
-            pagesParams:pagesParams==null?null:angular.toJson(pagesParams),
-            reload: fromCache ? false : true,
+            pagesParams:pagesParams==null?null:angular.toJson(pagesParams)
         }).success(function (response) {
             callback(response);
         });

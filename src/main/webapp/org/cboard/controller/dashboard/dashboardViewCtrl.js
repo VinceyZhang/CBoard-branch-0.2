@@ -234,7 +234,7 @@ cBoard.controller('dashboardViewCtrl', function ($rootScope, $scope, $state, $st
             var queries = [];
             var addr = "dashboard/getCachedData.do";
             if ($scope.board.type == 1) {
-                addr = "dashboard/getCachedDataByParams.do";
+                addr = "dashboard/getDataByParams.do";
                 //判断是否为数据管理的widget
 
                 $scope.isDataManager = true;

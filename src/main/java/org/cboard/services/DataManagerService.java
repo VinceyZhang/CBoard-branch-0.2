@@ -290,25 +290,25 @@ public class DataManagerService extends DataProviderService {
 
     /**
      * 分页获取数据
-     *
-     * @param datasourceId
-     * @param query
      * @param params
      * @param pagesParams
      * @param datasetId
      * @return
      */
-    public DataProviderResult getData(Long datasourceId, Map<String, String> query, String params, String pagesParams, Long datasetId) {
+    public DataProviderResult getData(String params,String  pagesParams,Long datasetId) {
 
         PageHelper pageHelper = new PageHelper();
         pageHelper.setCurPage(1);
         pageHelper.setPageSize(10);
+
         if (pagesParams != null) {
             JSONObject pgObject = JSONObject.parseObject(pagesParams);
             pageHelper.setCurPage(pgObject.getInteger("curPage") == null ? 1 : pgObject.getInteger("curPage"));
             pageHelper.setPageSize(pgObject.getInteger("pageSize") == null ? 2 : pgObject.getInteger("pageSize"));
         }
 
+        Map<String, String> query = null;
+        Long datasourceId = null;
         if (datasetId != null) {
             Dataset dataset = getDataset(datasetId);
             datasourceId = dataset.getDatasourceId();
@@ -326,7 +326,7 @@ public class DataManagerService extends DataProviderService {
                 while (iterator.hasNext()) {
                     Map.Entry<String, String> entry = iterator.next();
                     sql.append(" and ");
-                    sql.append(entry.getKey() + " = \'" + entry.getValue() + "\' ");
+                    sql.append(entry.getKey() + " like \'%" + entry.getValue() + "%\' ");
 
                 }
             }
