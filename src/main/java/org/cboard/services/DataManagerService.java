@@ -505,12 +505,11 @@ public class DataManagerService extends DataProviderService {
         try {
             PageHelper pageHelper = new PageHelper();
             pageHelper.setCurPage(1);
-            pageHelper.setPageSize(10);
+            pageHelper.setPageSize(10000);
             DataProvider dataProvider = DataProviderManager.getDataProvider(datasource.getType());
             resultCount = dataProvider.resultCount(parameterMap, query);
             pageHelper.setTotalCount(resultCount);
             pageHelper.setTotalPage(resultCount);
-
             String userId = authenticationService.getCurrentUser().getUserId();
             File dir = new File(PathTool.getRealPath() + "/download/" + userId);
             if (!dir.exists()) {

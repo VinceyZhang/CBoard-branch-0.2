@@ -65,7 +65,7 @@ public class RestfulTest {
 
             System.out.print("paramsMap:" + json);
 
-            HttpPost request = new HttpPost("http://192.168.188.59:8087/dashboard/searchDataByParams.do");
+            HttpPost request = new HttpPost("http://192.168.188.59:8087/rest/open/searchDataByParams/79");
             request.setHeader("Content-type", "application/json; charset=utf-8");
             request.setHeader("Accept", "application/json");
 

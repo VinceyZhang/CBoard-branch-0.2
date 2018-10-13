@@ -51,6 +51,10 @@ public class PageHelper {
     }
 
     public void setTotalPage(Integer totalPage) {
+        if(totalCount<=pageSize){
+            this.totalPage=1;
+            return;
+        }
         this.totalPage = totalCount / pageSize == 0 ? totalCount / pageSize : totalCount / pageSize + 1;
     }
 }
