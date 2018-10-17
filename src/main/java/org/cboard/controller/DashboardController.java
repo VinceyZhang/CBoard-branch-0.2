@@ -487,7 +487,7 @@ public class DashboardController {
     }
 
     @RequestMapping(value = "/getDatasetListByType")
-    public List<ViewDashboardDataset> getDatasetListByType(@RequestParam(name = "type") Integer type) {
+    public List<ViewDashboardDataset> getDatasetListByType(@RequestParam(name = "type",required = false) Integer type) {
 
         String userId = authenticationService.getCurrentUser().getUserId();
         List<DashboardDataset> list = datasetService.getDatasetListByType(userId, type);

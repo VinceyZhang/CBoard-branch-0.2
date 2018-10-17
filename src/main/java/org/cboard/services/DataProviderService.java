@@ -128,9 +128,9 @@ public class DataProviderService {
         Map<String, String> query = new HashMap<String, String>();
 
         if (datasource.getDbType().equals("mysql")) {
-            query.put("sql", sql + (" limit 0,1"));
+            query.put("sql", sql + (" limit 0,10"));
         } else if (datasource.getDbType().equals("sqlserver")) {
-            query.put("sql", sql.replaceFirst("select", "select top 1 "));
+            query.put("sql", sql.replaceFirst("select", "select top 10 "));
         }
         try {
             JSONObject config = JSONObject.parseObject(datasource.getConfig());

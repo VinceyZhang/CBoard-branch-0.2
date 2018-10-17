@@ -117,7 +117,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
     $scope.filterSelect = {};
     $scope.verify = {widgetName: true};
 
-    $http.post("dashboard/getDatasetListByType.do",{type: 0}).success(function (response) {
+    $http.post("dashboard/getDatasetListByType.do").success(function (response) {
         $scope.datasetList = response;
     });
 

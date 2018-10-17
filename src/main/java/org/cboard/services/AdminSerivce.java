@@ -8,10 +8,8 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.cboard.dao.RoleDao;
 import org.cboard.dao.UserDao;
-import org.cboard.pojo.DashboardRole;
-import org.cboard.pojo.DashboardRoleRes;
-import org.cboard.pojo.DashboardUser;
-import org.cboard.pojo.DashboardUserRole;
+import org.cboard.dao.WidgetDao;
+import org.cboard.pojo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -35,6 +33,9 @@ public class AdminSerivce {
 
     @Autowired
     private RoleDao roleDao;
+
+    @Autowired
+    private WidgetDao widgetDao;
 
     public String addUser(String userId, String loginName, String userName, String userPassword) {
         String md5 = Hashing.md5().newHasher().putString(userPassword, Charsets.UTF_8).hash().toString();
@@ -115,9 +116,17 @@ public class AdminSerivce {
             roleDao.deleteRoleRes(rid);
             if (arr != null && arr.size() > 0) {
                 List<DashboardRoleRes> list = new ArrayList<>();
+
                 for (Object res : arr) {
-                    JSONObject jo = (JSONObject) res;
                     DashboardRoleRes roleRes = new DashboardRoleRes();
+                    JSONObject jo = (JSONObject) res;
+                    String resType=jo.getString("resType");
+                    if(resType.equals("widget")){
+                        DashboardWidget widget=widgetDao.getWidget(Long.parseLong(jo.getString("resId")));
+                        widget.getType();
+                        roleRes.setResDataType(widget.getType());
+                    }
+
                     roleRes.setRoleId(rid);
                     roleRes.setResId(jo.getLong("resId"));
                     roleRes.setResType(jo.getString("resType"));

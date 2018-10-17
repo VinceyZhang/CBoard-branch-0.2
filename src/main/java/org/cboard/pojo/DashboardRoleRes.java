@@ -8,6 +8,15 @@ public class DashboardRoleRes {
     private String roleId;
     private Long resId;
     private String resType;
+    private Integer resDataType;
+
+    public Integer getResDataType() {
+        return resDataType;
+    }
+
+    public void setResDataType(Integer resDataType) {
+        this.resDataType = resDataType;
+    }
 
     public String getResType() {
         return resType;

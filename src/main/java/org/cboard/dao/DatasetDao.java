@@ -16,7 +16,7 @@ public interface DatasetDao {
 
     List<DashboardDataset> getDatasetList(String userId);
 
-    List<DashboardDataset> getDatasetListByType(String userId,Integer id);
+    List<DashboardDataset> getDatasetListByType(DashboardDataset dataset);
 
     int save(DashboardDataset dataset);
 

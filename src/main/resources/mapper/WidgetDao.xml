@@ -30,14 +30,15 @@
               category_name AS categoryName,
               widget_type   AS type
          FROM dashboard_widget
-        WHERE ( #{userId} = '${admin_user_id}' OR user_id = #{userId} AND widget_type=#{type} AND
-                widget_id IN (SELECT res_id FROM dashboard_user_role ur LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id WHERE ur.user_id = #{userId} AND rr.res_type = 'widget')
+        WHERE ( #{userId} = '${admin_user_id}' OR user_id = #{userId} AND widget_type=#{type} OR
+                widget_id IN (SELECT res_id FROM dashboard_user_role ur LEFT JOIN dashboard_role_res rr ON ur.role_id = rr.role_id
+                              WHERE ur.user_id = #{userId} AND rr.res_type = 'widget'AND rr.res_data_type=#{type})
             )
         ORDER BY widget_name
     </select>
 
     <select id="getWidget" resultType="org.cboard.pojo.DashboardWidget">
-       SELECT widget_id id,user_id userId,widget_name name,data_json data,category_name categoryName FROM dashboard_widget WHERE widget_id = #{0}
+       SELECT widget_id id,user_id userId,widget_name name,data_json data,category_name categoryName ,widget_type type FROM dashboard_widget WHERE widget_id = #{0}
     </select>
 
     <insert id="save" parameterType="org.cboard.pojo.DashboardWidget">

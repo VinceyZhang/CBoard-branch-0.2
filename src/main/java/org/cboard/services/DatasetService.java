@@ -74,7 +74,12 @@ public class DatasetService {
         return new ServiceStatus(ServiceStatus.Status.Success, "success");
     }
 
-    public List<DashboardDataset> getDatasetListByType(String userId, int type) {
-        return datasetDao.getDatasetListByType(userId, type);
+    public List<DashboardDataset> getDatasetListByType(String userId, Integer type) {
+
+        DashboardDataset dataset = new DashboardDataset();
+        dataset.setUserId(userId);
+        dataset.setType(type);
+
+        return datasetDao.getDatasetListByType(dataset);
     }
 }

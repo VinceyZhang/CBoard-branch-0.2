@@ -29,10 +29,10 @@
 
     <insert id="saveRoleRes" parameterType="java.util.List">
         insert into dashboard_role_res
-        (res_id, role_id,res_type)
+        (res_id, role_id,res_type,res_data_type)
         values
         <foreach collection="list" item="rr" index="index" separator=",">
-            (#{rr.resId}, #{rr.roleId} ,#{rr.resType})
+            (#{rr.resId}, #{rr.roleId} ,#{rr.resType},#{rr.resDataType})
         </foreach>
     </insert>
 
